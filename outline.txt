@@ -1,0 +1,21 @@
+1. The client side
+    1. Showing cards - DONE!
+    2. Showing the state of the table
+    3. Listing the rooms
+    4. Entering a room
+    5. The gameplay - events
+
+2. The server side
+    1. Setting up the database
+    2. Using it on the client side
+
+3. Future ideas
+    1. Option to auto-add cards in case of no sets
+    2. Setting a password for the table
+    3. SSO via Google
+    4. Trainer
+
+Stack:
+    - Database: MongoDB
+    - Client-side framework: Next.js
+    - Basic session mechanism: session ID kept in the local storage
