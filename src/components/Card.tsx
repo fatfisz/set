@@ -30,8 +30,10 @@ export function Card({
       <style jsx>{`
         .card {
           align-content: center;
-          border: 2px solid #ccc;
+          background-color: white;
+          border: 1px solid #ccc;
           border-radius: 8px;
+          box-shadow: 0px 2px 6px 0px #666;
           display: grid;
           gap: 16px;
           height: ${cardHeight}px;

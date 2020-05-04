@@ -11,6 +11,14 @@ export default function App({ Component, pageProps }: AppProps) {
       <style jsx global>{`
         * {
           box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        body {
+          background-image: url('/static/table-background.jpg');
+          background-position: center;
+          background-size: cover;
         }
       `}</style>
     </>
