@@ -1,11 +1,5 @@
-import { Card } from 'components/Card';
+import { Table } from 'components/Table';
 
 export default function Index() {
-  return (
-    <div>
-      <Card color="green" number={1} shade="open" shape="diamond" />
-      <Card color="purple" number={2} shade="striped" shape="squiggle" />
-      <Card color="red" number={3} shade="solid" shape="oval" />
-    </div>
-  );
+  return <Table />;
 }
