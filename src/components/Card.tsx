@@ -1,4 +1,4 @@
-import { sizes } from 'components/CardDefs';
+import { shapeImageDescriptions } from 'components/CardDefs';
 
 export type Color = 'red' | 'green' | 'purple';
 export type Number = 1 | 2 | 3;
@@ -47,24 +47,26 @@ function ShapeImage({
   shade: Shade;
   shape: Shape;
 }) {
+  const { shapeId, clipPathId, width, height } = shapeImageDescriptions[shape];
   return (
     <div
       className="symbol"
       style={{
         position: 'relative',
-        ...sizes[shape],
+        width,
+        height,
       }}
     >
       <div
         className="full-span"
         style={{
           background: getBackground(color, shade),
-          clipPath: `url(#clip-path-${shape})`,
+          clipPath: `url(#${clipPathId})`,
         }}
       />
 
       <svg className="full-span">
-        <use href={`#shape-${shape}`} stroke={colors[color]} />
+        <use href={`#${shapeId}`} stroke={colors[color]} />
       </svg>
 
       <style jsx>{`

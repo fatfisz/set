@@ -1,23 +1,13 @@
-import { ReactElement, cloneElement } from 'react';
+import { ReactElement, cloneElement, Fragment } from 'react';
 
 import { Shape } from 'components/Card';
 
-export function CardDefs() {
-  return (
-    <svg width="0" height="0">
-      {(Object.keys(shapes) as Shape[]).map((shape) => (
-        <clipPath key={shape} id={`clip-path-${shape}`}>
-          {shapes[shape]}
-        </clipPath>
-      ))}
-
-      <defs>
-        {(Object.keys(shapes) as Shape[]).map((shape) =>
-          cloneElement(shapes[shape], { key: shape, id: `shape-${shape}` })
-        )}
-      </defs>
-    </svg>
-  );
+interface ShapeImageDescription {
+  shapeId: string;
+  clipPathId: string;
+  element: ReactElement;
+  width: number;
+  height: number;
 }
 
 const shapes: Record<Shape, ReactElement> = {
@@ -53,8 +43,44 @@ const shapes: Record<Shape, ReactElement> = {
   ),
 };
 
-export const sizes: Record<Shape, { width: number; height: number }> = {
+const sizes: Record<Shape, { width: number; height: number }> = {
   diamond: { width: 112, height: 58.2 },
   oval: { width: 109.8, height: 52.8 },
   squiggle: { width: 103.8, height: 52.6 },
 };
+
+export const shapeImageDescriptions = Object.fromEntries(
+  (Object.entries(shapes) as [Shape, ReactElement][]).map(
+    getShapeImageDescription
+  )
+) as Record<Shape, ShapeImageDescription>;
+
+export function CardDefs() {
+  return (
+    <svg width="0" height="0">
+      {Object.values(shapeImageDescriptions).map(
+        ({ shapeId, clipPathId, element }, index) => (
+          <Fragment key={index}>
+            <defs>{cloneElement(element, { id: shapeId })}</defs>
+            <clipPath id={clipPathId}>{element}</clipPath>
+          </Fragment>
+        )
+      )}
+    </svg>
+  );
+}
+
+function getShapeImageDescription([shape, element]: [Shape, ReactElement]): [
+  Shape,
+  ShapeImageDescription
+] {
+  return [
+    shape,
+    {
+      shapeId: `shape-${shape}`,
+      clipPathId: `clip-path-${shape}`,
+      element,
+      ...sizes[shape],
+    },
+  ];
+}
