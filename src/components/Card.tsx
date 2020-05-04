@@ -1,5 +1,3 @@
-import { cloneElement } from 'react';
-
 import { sizes } from 'components/CardDefs';
 
 export type Color = 'red' | 'green' | 'purple';
@@ -7,17 +5,49 @@ export type Number = 1 | 2 | 3;
 export type Shade = 'solid' | 'striped' | 'open';
 export type Shape = 'diamond' | 'oval' | 'squiggle';
 
-interface Props {
+export function Card({
+  color,
+  number,
+  shade,
+  shape,
+}: {
   color: Color;
   number: Number;
   shade: Shade;
   shape: Shape;
+}) {
+  return (
+    <div className="card">
+      {Array.from({ length: number }, (_value, key) => (
+        <ShapeImage key={key} color={color} shade={shade} shape={shape} />
+      ))}
+
+      <style jsx>{`
+        .card {
+          align-items: center;
+          border: 2px solid #ccc;
+          border-radius: 10px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          height: 264px;
+          width: 167px;
+        }
+      `}</style>
+    </div>
+  );
 }
 
-export function Card(props: Props) {
-  const { color, number, shade, shape } = props;
-
-  const svgImage = (
+function ShapeImage({
+  color,
+  shade,
+  shape,
+}: {
+  color: Color;
+  shade: Shade;
+  shape: Shape;
+}) {
+  return (
     <div
       className="symbol"
       style={{
@@ -48,27 +78,6 @@ export function Card(props: Props) {
           position: absolute;
           top: 0;
           width: 100%;
-        }
-      `}</style>
-    </div>
-  );
-
-  return (
-    <div className="card">
-      {Array.from({ length: number }, (_value, key) =>
-        cloneElement(svgImage, { key })
-      )}
-
-      <style jsx>{`
-        .card {
-          align-items: center;
-          border: 2px solid #ccc;
-          border-radius: 10px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          height: 264px;
-          width: 167px;
         }
       `}</style>
     </div>
