@@ -1,6 +1,6 @@
 import { ReactElement, cloneElement, Fragment } from 'react';
 
-import { Shape } from 'components/Card';
+import { Shape } from 'config/card';
 
 interface ShapeImageDescription {
   shapeId: string;

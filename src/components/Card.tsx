@@ -1,9 +1,5 @@
 import { shapeImageDescriptions } from 'components/CardDefs';
-
-export type Color = 'red' | 'green' | 'purple';
-export type Number = 1 | 2 | 3;
-export type Shade = 'solid' | 'striped' | 'open';
-export type Shape = 'diamond' | 'oval' | 'squiggle';
+import { Color, Number, Shade, Shape } from 'config/card';
 
 export function Card({
   color,
