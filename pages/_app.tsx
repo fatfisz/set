@@ -7,6 +7,12 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <CardDefs />
       <Component {...pageProps} />
+
+      <style jsx global>{`
+        * {
+          box-sizing: border-box;
+        }
+      `}</style>
     </>
   );
 }
