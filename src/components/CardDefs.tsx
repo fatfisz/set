@@ -57,7 +57,15 @@ export const shapeImageDescriptions = Object.fromEntries(
 
 export function CardDefs() {
   return (
-    <svg width="0" height="0">
+    <svg
+      width="0"
+      height="0"
+      style={{
+        // The svg element generates a new line, which has line-height, so let's
+        // just take it out of the flow
+        position: 'absolute',
+      }}
+    >
       {Object.values(shapeImageDescriptions).map(
         ({ shapeId, clipPathId, element }, index) => (
           <Fragment key={index}>
