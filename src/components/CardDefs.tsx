@@ -13,7 +13,7 @@ export function CardDefs() {
 
       <defs>
         {(Object.keys(shapes) as Shape[]).map((shape) =>
-          cloneElement(shapes[shape], { id: `shape-${shape}` })
+          cloneElement(shapes[shape], { key: shape, id: `shape-${shape}` })
         )}
       </defs>
     </svg>

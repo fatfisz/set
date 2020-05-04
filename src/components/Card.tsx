@@ -1,3 +1,5 @@
+import { cloneElement } from 'react';
+
 import { sizes } from 'components/CardDefs';
 
 export type Color = 'red' | 'green' | 'purple';
@@ -53,7 +55,9 @@ export function Card(props: Props) {
 
   return (
     <div className="card">
-      {Array.from({ length: number }, () => svgImage)}
+      {Array.from({ length: number }, (_value, key) =>
+        cloneElement(svgImage, { key })
+      )}
 
       <style jsx>{`
         .card {
