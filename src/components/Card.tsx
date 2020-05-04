@@ -20,11 +20,11 @@ export function Card({
 
       <style jsx>{`
         .card {
-          align-items: center;
+          align-content: center;
           border: 2px solid #ccc;
           border-radius: 10px;
-          display: flex;
-          flex-direction: column;
+          display: grid;
+          gap: 16px;
           justify-content: center;
           height: 264px;
           width: 167px;
@@ -46,7 +46,6 @@ function ShapeImage({
   const { shapeId, clipPathId, width, height } = shapeImageDescriptions[shape];
   return (
     <div
-      className="symbol"
       style={{
         position: 'relative',
         width,
@@ -66,10 +65,6 @@ function ShapeImage({
       </svg>
 
       <style jsx>{`
-        .symbol + .symbol {
-          margin-top: 20px;
-        }
-
         .full-span {
           height: 100%;
           left: 0;
