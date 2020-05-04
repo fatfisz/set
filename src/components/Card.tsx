@@ -1,5 +1,12 @@
 import { shapeImageDescriptions } from 'components/CardDefs';
-import { Color, Number, Shade, Shape } from 'config/card';
+import {
+  cardHeight,
+  cardWidth,
+  Color,
+  Number,
+  Shade,
+  Shape,
+} from 'config/card';
 
 export function Card({
   color,
@@ -13,24 +20,26 @@ export function Card({
   shape: Shape;
 }) {
   return (
-    <div className="card">
-      {Array.from({ length: number }, (_value, key) => (
-        <ShapeImage key={key} color={color} shade={shade} shape={shape} />
-      ))}
+    <>
+      <div className="card">
+        {Array.from({ length: number }, (_value, key) => (
+          <ShapeImage key={key} color={color} shade={shade} shape={shape} />
+        ))}
+      </div>
 
       <style jsx>{`
         .card {
           align-content: center;
           border: 2px solid #ccc;
-          border-radius: 10px;
+          border-radius: 8px;
           display: grid;
           gap: 16px;
+          height: ${cardHeight}px;
           justify-content: center;
-          height: 264px;
-          width: 167px;
+          width: ${cardWidth}px;
         }
       `}</style>
-    </div>
+    </>
   );
 }
 
@@ -45,24 +54,26 @@ function ShapeImage({
 }) {
   const { shapeId, clipPathId, width, height } = shapeImageDescriptions[shape];
   return (
-    <div
-      style={{
-        position: 'relative',
-        width,
-        height,
-      }}
-    >
+    <>
       <div
-        className="full-span"
         style={{
-          background: getBackground(color, shade),
-          clipPath: `url(#${clipPathId})`,
+          position: 'relative',
+          width,
+          height,
         }}
-      />
+      >
+        <div
+          className="full-span"
+          style={{
+            background: getBackground(color, shade),
+            clipPath: `url(#${clipPathId})`,
+          }}
+        />
 
-      <svg className="full-span">
-        <use href={`#${shapeId}`} stroke={colors[color]} />
-      </svg>
+        <svg className="full-span">
+          <use href={`#${shapeId}`} stroke={colors[color]} />
+        </svg>
+      </div>
 
       <style jsx>{`
         .full-span {
@@ -73,7 +84,7 @@ function ShapeImage({
           width: 100%;
         }
       `}</style>
-    </div>
+    </>
   );
 }
 

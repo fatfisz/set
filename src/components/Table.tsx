@@ -1,47 +1,50 @@
 import { Card } from 'components/Card';
-import { Color, Number, Shade, Shape } from 'config/card';
+import {
+  cardHeight,
+  cardWidth,
+  Color,
+  Number,
+  rowCount,
+  Shade,
+  Shape,
+} from 'config/card';
 
-export function Table() {
-  const cards: {
-    color: Color;
-    number: Number;
-    shade: Shade;
-    shape: Shape;
-  }[] = [
-    { color: 'green', number: 1, shade: 'open', shape: 'diamond' },
-    { color: 'purple', number: 2, shade: 'striped', shape: 'squiggle' },
-    { color: 'red', number: 3, shade: 'solid', shape: 'oval' },
-    { color: 'green', number: 1, shade: 'open', shape: 'diamond' },
-    { color: 'purple', number: 2, shade: 'striped', shape: 'squiggle' },
-    { color: 'red', number: 3, shade: 'solid', shape: 'oval' },
-    { color: 'green', number: 1, shade: 'open', shape: 'diamond' },
-    { color: 'purple', number: 2, shade: 'striped', shape: 'squiggle' },
-    { color: 'red', number: 3, shade: 'solid', shape: 'oval' },
-    { color: 'green', number: 1, shade: 'open', shape: 'diamond' },
-    { color: 'purple', number: 2, shade: 'striped', shape: 'squiggle' },
-    { color: 'red', number: 3, shade: 'solid', shape: 'oval' },
-  ];
+export type MaybeCard =
+  | {
+      color: Color;
+      number: Number;
+      shade: Shade;
+      shape: Shape;
+    }
+  | undefined;
+
+export function Table({ cards }: { cards: MaybeCard[] }) {
+  const columnCount = Math.ceil(cards.length / rowCount);
+  const gap = 32;
+  const width = columnCount * (cardWidth + gap) - gap;
   return (
-    <div className="table">
-      {cards.map((cardProps, index) => (
-        <Card key={index} {...cardProps} />
-      ))}
+    <>
+      <div className="table" style={{ width }}>
+        {cards.map((cardProps, index) =>
+          typeof cardProps === 'undefined' ? (
+            <div key={index} style={{ height: cardHeight, width: cardWidth }} />
+          ) : (
+            <Card key={index} {...cardProps} />
+          )
+        )}
+      </div>
 
       <style jsx>{`
         .table {
           align-content: center;
           display: grid;
-          gap: 32px;
-          grid-template-columns: repeat(4, max-content);
-          justify-content: center;
-
-          height: 100%;
-          left: 0;
-          position: fixed;
-          top: 0;
-          width: 100%;
+          gap: ${gap}px;
+          grid-auto-flow: column;
+          grid-template-rows: repeat(${rowCount}, max-content);
+          justify-content: start;
+          transition: width 400ms;
         }
       `}</style>
-    </div>
+    </>
   );
 }
