@@ -8,27 +8,12 @@ import { MaybeCardDescription } from 'types/Card';
 const padding = 32;
 const gap = 32;
 
-export function Table({ cards }: { cards: MaybeCardDescription[] }) {
-  const columnCount = Math.ceil(cards.length / rowCount);
-  const width = 2 * padding + columnCount * (cardWidth + gap) - gap;
+export function Table({ cards }: { cards?: MaybeCardDescription[] }) {
   const resetOnClick = useResetOnClick();
   return (
     <>
       <div className="center-wrapper" onClick={resetOnClick}>
-        <div className="table mouse-fallthrough" style={{ width }}>
-          {cards.map((cardProps, index) =>
-            typeof cardProps === 'undefined' ? (
-              <div
-                key={index}
-                style={{ height: cardHeight, width: cardWidth }}
-              />
-            ) : (
-              <div key={index} className="enable-pointer-events">
-                <Card {...cardProps} />
-              </div>
-            )
-          )}
-        </div>
+        <TableCards cards={cards} />
       </div>
 
       <style jsx>{`
@@ -36,7 +21,46 @@ export function Table({ cards }: { cards: MaybeCardDescription[] }) {
           display: flex;
           justify-content: center;
         }
+      `}</style>
+    </>
+  );
+}
 
+function useResetOnClick() {
+  const { reset } = useContext(TableStateContext);
+  return useCallback(
+    (event: MouseEvent) => {
+      if (event.currentTarget === event.target) {
+        reset();
+      }
+    },
+    [reset]
+  );
+}
+
+function TableCards({ cards }: { cards?: MaybeCardDescription[] }) {
+  if (!cards) {
+    return null;
+  }
+
+  const columnCount = Math.ceil(cards.length / rowCount);
+  const width = 2 * padding + columnCount * (cardWidth + gap) - gap;
+
+  return (
+    <>
+      <div className="table mouse-fallthrough" style={{ width }}>
+        {cards.map((cardProps, index) =>
+          typeof cardProps === 'undefined' ? (
+            <div key={index} style={{ height: cardHeight, width: cardWidth }} />
+          ) : (
+            <div key={index} className="enable-pointer-events">
+              <Card {...cardProps} />
+            </div>
+          )
+        )}
+      </div>
+
+      <style jsx>{`
         .table {
           align-content: center;
           display: grid;
@@ -54,17 +78,5 @@ export function Table({ cards }: { cards: MaybeCardDescription[] }) {
         }
       `}</style>
     </>
-  );
-}
-
-function useResetOnClick() {
-  const { reset } = useContext(TableStateContext);
-  return useCallback(
-    (event: MouseEvent) => {
-      if (event.currentTarget === event.target) {
-        reset();
-      }
-    },
-    [reset]
   );
 }

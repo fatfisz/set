@@ -1,12 +1,15 @@
 import { AppProps } from 'next/app';
 
 import { CardDefs } from 'components/CardDefs';
+import { SessionContextProvider } from 'components/SessionContext';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <CardDefs />
-      <Component {...pageProps} />
+      <SessionContextProvider>
+        <Component {...pageProps} />
+      </SessionContextProvider>
 
       <style jsx global>{`
         * {
@@ -17,7 +20,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
         body {
           background-image: url('/static/table-background.jpg');
-          background-position: center;
+          background-position: top;
           background-size: cover;
         }
       `}</style>

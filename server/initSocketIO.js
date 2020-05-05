@@ -8,8 +8,14 @@ exports.initSocketIO = function initSocketIO(server) {
   let userCount = 0;
 
   io.on('connect', (socket) => {
+    const { sessionId } = socket.handshake.query;
+
+    if (typeof sessionId === 'undefined') {
+      return;
+    }
+
     userCount += 1;
-    console.log(`Connected users: ${userCount}`);
+    console.log(`User joined: ${sessionId} (${userCount} total)`);
 
     socket.emit('room joined', [
       { color: 'green', number: 1, shade: 'open', shape: 'diamond' },
@@ -35,7 +41,7 @@ exports.initSocketIO = function initSocketIO(server) {
 
     socket.on('disconnect', () => {
       userCount -= 1;
-      console.log(`Connected users: ${userCount}`);
+      console.log(`User left: ${sessionId} (${userCount} total)`);
     });
   });
 };
