@@ -1,15 +1,15 @@
 import { AppProps } from 'next/app';
 
 import { CardDefs } from 'components/CardDefs';
-import { SessionContextProvider } from 'components/SessionContext';
+import { SocketContextProvider } from 'components/SocketContext';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <CardDefs />
-      <SessionContextProvider>
+      <SocketContextProvider>
         <Component {...pageProps} />
-      </SessionContextProvider>
+      </SocketContextProvider>
 
       <style jsx global>{`
         * {
