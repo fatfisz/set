@@ -1,8 +1,13 @@
 import { Table } from 'components/Table';
+import { TableStateProvider } from 'components/TableStateContext';
 import { MaybeCardDescription } from 'types/Card';
 
 export default function Index() {
-  return <Table cards={cards} />;
+  return (
+    <TableStateProvider>
+      <Table cards={cards} />
+    </TableStateProvider>
+  );
 }
 
 const cards: MaybeCardDescription[] = [
