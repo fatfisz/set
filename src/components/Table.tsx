@@ -1,27 +1,11 @@
 import { Card } from 'components/Card';
-import {
-  cardHeight,
-  cardWidth,
-  Color,
-  Number,
-  rowCount,
-  Shade,
-  Shape,
-} from 'config/card';
-
-export type MaybeCard =
-  | {
-      color: Color;
-      number: Number;
-      shade: Shade;
-      shape: Shape;
-    }
-  | undefined;
+import { cardHeight, cardWidth, rowCount } from 'config/card';
+import { MaybeCardDescription } from 'types/Card';
 
 const padding = 32;
 const gap = 32;
 
-export function Table({ cards }: { cards: MaybeCard[] }) {
+export function Table({ cards }: { cards: MaybeCardDescription[] }) {
   const columnCount = Math.ceil(cards.length / rowCount);
   const width = 2 * padding + columnCount * (cardWidth + gap) - gap;
   return (

@@ -1,12 +1,6 @@
 import { shapeImageDescriptions } from 'components/CardDefs';
-import {
-  cardHeight,
-  cardWidth,
-  Color,
-  Number,
-  Shade,
-  Shape,
-} from 'config/card';
+import { cardHeight, cardWidth } from 'config/card';
+import { Color, Number, Shade, Shape } from 'types/Card';
 
 export function Card({
   color,
