@@ -11,6 +11,7 @@
     "@types/node": "^13.13.4",
     "@types/react": "^16.9.34",
     "classnames": "^2.2.6",
+    "cross-env": "^7.0.2",
     "fast-deep-equal": "^3.1.1",
     "immer": "^6.0.4",
     "next": "^9.3.6",
@@ -22,9 +23,9 @@
     "ws": "^7.2.5"
   },
   "scripts": {
-    "dev": "next",
+    "dev": "node server",
     "build": "next build",
-    "start": "next start",
+    "start": "cross-env NODE_ENV=production node server",
     "types": "tsc"
   }
 }
