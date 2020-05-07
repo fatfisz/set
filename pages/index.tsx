@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 
+import { SelectedCardsProvider } from 'components/SelectedCardsContext';
 import { SocketContext } from 'components/SocketContext';
 import { Table } from 'components/Table';
-import { TableStateProvider } from 'components/TableStateContext';
 import { RoomState } from 'types/RoomState';
 
 export default function Index() {
@@ -14,8 +14,8 @@ export default function Index() {
   }, []);
 
   return (
-    <TableStateProvider>
+    <SelectedCardsProvider>
       <Table cards={roomState?.cards} />
-    </TableStateProvider>
+    </SelectedCardsProvider>
   );
 }

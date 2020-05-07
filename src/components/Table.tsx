@@ -1,7 +1,7 @@
 import { MouseEvent, useCallback, useContext } from 'react';
 
 import { Card } from 'components/Card';
-import { TableStateContext } from 'components/TableStateContext';
+import { SelectedCardsContext } from 'components/SelectedCardsContext';
 import { cardHeight, cardWidth, emptyCard, rowCount } from 'config/card';
 
 const padding = 32;
@@ -26,7 +26,7 @@ export function Table({ cards }: { cards?: number[] }) {
 }
 
 function useResetOnClick() {
-  const { reset } = useContext(TableStateContext);
+  const { reset } = useContext(SelectedCardsContext);
   return useCallback(
     (event: MouseEvent) => {
       if (event.currentTarget === event.target) {

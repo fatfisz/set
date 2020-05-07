@@ -2,14 +2,14 @@ import classNames from 'classnames';
 import { useContext } from 'react';
 
 import { shapeImageDescriptions } from 'components/CardDefs';
-import { TableStateContext } from 'components/TableStateContext';
+import { SelectedCardsContext } from 'components/SelectedCardsContext';
 import { cardHeight, cardWidth } from 'config/card';
 import { Color, Number, Shade, Shape } from 'types/Card';
 import * as colors from 'config/colors';
 
 export function Card({ card }: { card: number }) {
   const { color, number, shade, shape } = cardNumberToDescription(card);
-  const { checkIsSelected, select } = useContext(TableStateContext);
+  const { checkIsSelected, select } = useContext(SelectedCardsContext);
   return (
     <>
       <div

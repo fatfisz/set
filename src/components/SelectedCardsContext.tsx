@@ -10,18 +10,16 @@ import {
 
 import { SocketContext } from 'components/SocketContext';
 
-interface TableState {
-  selected: Readonly<number[]>;
-}
+type SelectedCards = Readonly<number[]>;
 
-type TableStateAction =
+type SelectedCardsAction =
   | {
       type: 'select';
       payload: number;
     }
   | { type: 'reset' };
 
-export const TableStateContext = createContext<{
+export const SelectedCardsContext = createContext<{
   checkIsSelected(card: number): boolean;
   select(card: number): void;
   reset(): void;
@@ -31,18 +29,15 @@ export const TableStateContext = createContext<{
   reset: () => {},
 });
 
-const initialState: TableState = {
-  selected: [],
-};
+const initialState: SelectedCards = [];
 
-export function TableStateProvider({ children }: { children: ReactNode }) {
+export function SelectedCardsProvider({ children }: { children: ReactNode }) {
   const { selectSet } = useContext(SocketContext);
-  const [state, dispatch] = useReducer(tableStateReducer, initialState);
+  const [state, dispatch] = useReducer(selectedCardsReducer, initialState);
   const value = {
-    checkIsSelected: useCallback(
-      (card: number) => state.selected.includes(card),
-      [state.selected]
-    ),
+    checkIsSelected: useCallback((card: number) => state.includes(card), [
+      state,
+    ]),
     select: useCallback(
       (card: number) => dispatch({ type: 'select', payload: card }),
       []
@@ -51,33 +46,32 @@ export function TableStateProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    if (state.selected.length !== 3) {
+    if (state.length !== 3) {
       return;
     }
 
-    selectSet(state.selected);
+    selectSet(state);
     dispatch({ type: 'reset' });
-  }, [state.selected.length]);
+  }, [state.length]);
 
   return (
-    <TableStateContext.Provider value={value}>
+    <SelectedCardsContext.Provider value={value}>
       {children}
-    </TableStateContext.Provider>
+    </SelectedCardsContext.Provider>
   );
 }
 
-const tableStateReducer = produce(
-  (state: Draft<TableState>, action: TableStateAction) => {
+const selectedCardsReducer = produce(
+  (state: Draft<SelectedCards>, action: SelectedCardsAction) => {
     switch (action.type) {
       case 'select':
-        if (!state.selected.includes(action.payload)) {
-          state.selected.push(action.payload);
+        if (!state.includes(action.payload)) {
+          state.push(action.payload);
         }
         return;
 
       case 'reset':
-        state.selected = [];
-        return;
+        return [] as number[];
     }
   }
 );
