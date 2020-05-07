@@ -38,6 +38,26 @@ exports.Table = class Table {
   getRemainingCardCount() {
     return this.#cards.length - this.#nextCardIndex + 1;
   }
+
+  popSet(cards) {
+    if (new Set(cards).size !== 3) {
+      return false;
+    }
+
+    if (cards.includes(emptyCard)) {
+      return false;
+    }
+
+    if (!cards.every((card) => this.#tableCards.includes(card))) {
+      return false;
+    }
+
+    for (const card of cards) {
+      this.#tableCards[this.#tableCards.indexOf(card)] = -1;
+    }
+    this.#fill();
+    return true;
+  }
 };
 
 function getShuffledCards() {
