@@ -1,20 +1,20 @@
-import equal from 'fast-deep-equal';
 import produce, { Draft } from 'immer';
 import { createContext, ReactNode, useCallback, useReducer } from 'react';
 
-import { CardDescription } from 'types/Card';
-
 interface TableState {
-  selected: Readonly<CardDescription[]>;
+  selected: Readonly<number[]>;
 }
 
 type TableStateAction =
-  | { type: 'select'; payload: CardDescription }
+  | {
+      type: 'select';
+      payload: number;
+    }
   | { type: 'reset' };
 
 export const TableStateContext = createContext<{
-  checkIsSelected(card: CardDescription): boolean;
-  select(card: CardDescription): void;
+  checkIsSelected(card: number): boolean;
+  select(card: number): void;
   reset(): void;
 }>({
   checkIsSelected: () => false,
@@ -30,12 +30,11 @@ export function TableStateProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(tableStateReducer, initialState);
   const value = {
     checkIsSelected: useCallback(
-      (cardQuery: CardDescription) =>
-        state.selected.some((card) => equal(card, cardQuery)),
+      (card: number) => state.selected.includes(card),
       [state.selected]
     ),
     select: useCallback(
-      (card: CardDescription) => dispatch({ type: 'select', payload: card }),
+      (card: number) => dispatch({ type: 'select', payload: card }),
       []
     ),
     reset: useCallback(() => dispatch({ type: 'reset' }), []),
@@ -52,7 +51,7 @@ const tableStateReducer = produce(
   (state: Draft<TableState>, action: TableStateAction) => {
     switch (action.type) {
       case 'select':
-        if (!state.selected.some((card) => equal(card, action.payload))) {
+        if (!state.selected.includes(action.payload)) {
           state.selected.push(action.payload);
         }
         return;

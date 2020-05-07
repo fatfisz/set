@@ -7,18 +7,8 @@ import { cardHeight, cardWidth } from 'config/card';
 import { Color, Number, Shade, Shape } from 'types/Card';
 import * as colors from 'config/colors';
 
-export function Card({
-  color,
-  number,
-  shade,
-  shape,
-}: {
-  color: Color;
-  number: Number;
-  shade: Shade;
-  shape: Shape;
-}) {
-  const card = { color, number, shade, shape };
+export function Card({ card }: { card: number }) {
+  const { color, number, shade, shape } = cardNumberToDescription(card);
   const { checkIsSelected, select } = useContext(TableStateContext);
   return (
     <>
@@ -126,3 +116,47 @@ function getBackground(color: Color, shade: Shade) {
       `;
   }
 }
+
+function cardNumberToDescription(
+  card: number
+): {
+  color: Color;
+  number: Number;
+  shade: Shade;
+  shape: Shape;
+} {
+  return {
+    color: numberToColor[getBase3Digit(card, 0)],
+    number: numberToNumber[getBase3Digit(card, 1)],
+    shade: numberToShade[getBase3Digit(card, 2)],
+    shape: numberToShape[getBase3Digit(card, 3)],
+  };
+}
+
+function getBase3Digit(number: number, digit: number) {
+  return Math.floor((number % 3 ** (digit + 1)) / 3 ** digit);
+}
+
+const numberToColor: Record<number, Color> = {
+  0: 'red',
+  1: 'green',
+  2: 'purple',
+};
+
+const numberToNumber: Record<number, Number> = {
+  0: 1,
+  1: 2,
+  2: 3,
+};
+
+const numberToShade: Record<number, Shade> = {
+  0: 'solid',
+  1: 'striped',
+  2: 'open',
+};
+
+const numberToShape: Record<number, Shape> = {
+  0: 'diamond',
+  1: 'oval',
+  2: 'squiggle',
+};

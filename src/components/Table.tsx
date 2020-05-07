@@ -2,13 +2,12 @@ import { MouseEvent, useCallback, useContext } from 'react';
 
 import { Card } from 'components/Card';
 import { TableStateContext } from 'components/TableStateContext';
-import { cardHeight, cardWidth, rowCount } from 'config/card';
-import { MaybeCardDescription } from 'types/Card';
+import { cardHeight, cardWidth, emptyCard, rowCount } from 'config/card';
 
 const padding = 32;
 const gap = 32;
 
-export function Table({ cards }: { cards?: MaybeCardDescription[] }) {
+export function Table({ cards }: { cards?: number[] }) {
   const resetOnClick = useResetOnClick();
   return (
     <>
@@ -38,7 +37,7 @@ function useResetOnClick() {
   );
 }
 
-function TableCards({ cards }: { cards?: MaybeCardDescription[] }) {
+function TableCards({ cards }: { cards?: number[] }) {
   if (!cards) {
     return null;
   }
@@ -49,12 +48,12 @@ function TableCards({ cards }: { cards?: MaybeCardDescription[] }) {
   return (
     <>
       <div className="table mouse-fallthrough" style={{ width }}>
-        {cards.map((cardProps, index) =>
-          typeof cardProps === 'undefined' ? (
+        {cards.map((card, index) =>
+          card === emptyCard ? (
             <div key={index} style={{ height: cardHeight, width: cardWidth }} />
           ) : (
             <div key={index} className="enable-pointer-events">
-              <Card {...cardProps} />
+              <Card card={card} />
             </div>
           )
         )}

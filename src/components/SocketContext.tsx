@@ -8,10 +8,8 @@ import {
 } from 'react';
 import io from 'socket.io-client';
 
-import { MaybeCardDescription } from 'types/Card';
-
 export const SocketContext = createContext<{
-  onRoomJoined(listener: (cards: MaybeCardDescription[]) => void): void;
+  onRoomJoined(listener: (cards: number[]) => void): void;
 }>({
   onRoomJoined() {},
 });
@@ -34,11 +32,8 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
       socket.emit('session id received', sessionId);
     });
 
-    socket.on('room joined', (cards: MaybeCardDescription[]) => {
-      eventEmitter.emit(
-        'room joined',
-        cards.map((card) => (card === null ? undefined : card))
-      );
+    socket.on('room joined', (cards: number[]) => {
+      eventEmitter.emit('room joined', cards);
     });
   }, []);
 

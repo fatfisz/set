@@ -3,17 +3,24 @@
 const { nanoid } = require('nanoid');
 const SocketIO = require('socket.io');
 
+const { Room } = require('./Room');
+
 const acceptedIds = new Set();
 let userCount = 0;
 
 exports.initSocketIO = function initSocketIO(server) {
   const io = SocketIO(server);
+  const room = new Room();
 
   io.on('connect', (socket) => {
     let { sessionId } = socket.handshake.query;
 
+    function setUp() {
+      setUpSocket(socket, room);
+    }
+
     if (acceptedIds.has(sessionId)) {
-      setUpSocket(socket);
+      setUp();
     } else {
       sessionId = nanoid();
       acceptedIds.add(sessionId);
@@ -27,7 +34,7 @@ exports.initSocketIO = function initSocketIO(server) {
       if (clientSessionId !== sessionId) {
         socket.disconnect();
       }
-      setUpSocket(socket);
+      setUp();
     });
 
     socket.on('disconnect', () => {
@@ -37,26 +44,6 @@ exports.initSocketIO = function initSocketIO(server) {
   });
 };
 
-function setUpSocket(socket) {
-  socket.emit('room joined', [
-    { color: 'green', number: 1, shade: 'open', shape: 'diamond' },
-    // { color: 'purple', number: 2, shade: 'striped', shape: 'squiggle' },
-    undefined,
-    { color: 'red', number: 3, shade: 'solid', shape: 'oval' },
-    // { color: 'green', number: 1, shade: 'open', shape: 'diamond' },
-    // { color: 'purple', number: 2, shade: 'striped', shape: 'squiggle' },
-    // { color: 'red', number: 3, shade: 'solid', shape: 'oval' },
-    undefined,
-    undefined,
-    undefined,
-    { color: 'green', number: 1, shade: 'open', shape: 'diamond' },
-    // { color: 'purple', number: 2, shade: 'striped', shape: 'squiggle' },
-    undefined,
-    { color: 'red', number: 3, shade: 'solid', shape: 'oval' },
-    { color: 'green', number: 1, shade: 'open', shape: 'diamond' },
-    // { color: 'purple', number: 2, shade: 'striped', shape: 'squiggle' },
-    undefined,
-    { color: 'red', number: 3, shade: 'solid', shape: 'oval' },
-    { color: 'red', number: 3, shade: 'solid', shape: 'oval' },
-  ]);
+function setUpSocket(socket, room) {
+  socket.emit('room joined', room.getTableCards());
 }

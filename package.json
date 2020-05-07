@@ -14,7 +14,6 @@
     "classnames": "^2.2.6",
     "cross-env": "^7.0.2",
     "eventemitter3": "^4.0.0",
-    "fast-deep-equal": "^3.1.1",
     "immer": "^6.0.4",
     "nanoid": "^3.1.5",
     "next": "^9.3.6",
@@ -27,9 +26,9 @@
     "typescript": "^3.8.3"
   },
   "scripts": {
-    "dev": "node server/init",
+    "dev": "node --harmony server/init",
     "build": "next build",
-    "start": "cross-env NODE_ENV=production node server/init",
+    "start": "cross-env NODE_ENV=production node --harmony server/init",
     "types": "tsc"
   }
 }
