@@ -3,21 +3,21 @@ exports.Players = class Players {
 
   getScores() {
     return [...this.#players.entries()].sort(
-      ([playerIdA, scoreA], [playerIdB, scoreB]) =>
-        scoreB - scoreA || playerIdA.localeCompare(playerIdB)
+      ([sessionIdA, scoreA], [sessionIdB, scoreB]) =>
+        scoreB - scoreA || sessionIdA.localeCompare(sessionIdB)
     );
   }
 
-  ensurePlayer(playerId) {
-    if (!this.#players.has(playerId)) {
-      this.#players.set(playerId, 0);
+  ensurePlayer(sessionId) {
+    if (!this.#players.has(sessionId)) {
+      this.#players.set(sessionId, 0);
     }
   }
 
-  increasePlayerScore(playerId) {
-    if (!this.#players.has(playerId)) {
+  increasePlayerScore(sessionId) {
+    if (!this.#players.has(sessionId)) {
       return;
     }
-    this.#players.set(playerId, this.#players.get(playerId) + 1);
+    this.#players.set(sessionId, this.#players.get(sessionId) + 1);
   }
 };

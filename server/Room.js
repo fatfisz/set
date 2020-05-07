@@ -9,19 +9,19 @@ exports.Room = class Room {
 
   getState() {
     return {
-      scores: this.players.getScores(),
       cards: this.table.getCards(),
       remainingCardCount: this.table.getRemainingCardCount(),
+      scores: this.players.getScores(),
     };
   }
 
-  trySelectSet(playerId, cards) {
+  trySelectSet(sessionId, cards) {
     if (!this.table.popSet(cards)) {
       return false;
     }
 
-    this.players.ensurePlayer(playerId);
-    this.players.increasePlayerScore(playerId);
+    this.players.ensurePlayer(sessionId);
+    this.players.increasePlayerScore(sessionId);
     return true;
   }
 };
