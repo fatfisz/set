@@ -5,6 +5,7 @@ import {
   ReactNode,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
 import io from 'socket.io-client';
 
@@ -17,32 +18,37 @@ interface SocketEvents {
 }
 
 export const SocketContext = createContext<{
-  onRoomStateChanged(listener: (roomState: RoomState) => void): () => void;
   joinRoom(): void;
   selectSet(cards: Readonly<number[]>): void;
+  sessionId: string;
+  onRoomStateChanged(listener: (roomState: RoomState) => void): () => void;
 }>({
+  joinRoom() {},
+  selectSet() {},
+  sessionId: '',
   onRoomStateChanged() {
     return () => {};
   },
-  joinRoom() {},
-  selectSet() {},
 });
 
 const storageIdKey = 'sessionId';
 
 export function SocketContextProvider({ children }: { children: ReactNode }) {
   const eventEmitter = useMemo(() => new EventEmitter<SocketEvents>(), []);
+  const [sessionId, setSessionId] = useState('');
 
   useEffect(() => {
+    const sessionId = localStorage.getItem(storageIdKey) ?? '';
     const socket = io({
       transports: ['websocket'],
-      query: {
-        sessionId: localStorage.getItem(storageIdKey),
-      },
+      query: { sessionId },
     });
+
+    setSessionId(sessionId);
 
     socket.on('session id generated', (sessionId: string) => {
       localStorage.setItem(storageIdKey, sessionId);
+      setSessionId(sessionId);
       socket.emit('session id received', sessionId);
     });
 
@@ -60,12 +66,13 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value: ContextType<typeof SocketContext> = {
+    sessionId,
+    joinRoom: () => eventEmitter.emit('room joined'),
+    selectSet: (cards) => eventEmitter.emit('set selected', cards),
     onRoomStateChanged: (listener) => {
       eventEmitter.on('room state changed', listener);
       return () => eventEmitter.off('room state changed', listener);
     },
-    joinRoom: () => eventEmitter.emit('room joined'),
-    selectSet: (cards) => eventEmitter.emit('set selected', cards),
   };
 
   return (

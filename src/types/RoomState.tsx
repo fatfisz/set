@@ -1,5 +1,5 @@
 export interface RoomState {
-  scores: [string, number][];
   cards: number[];
   remainingCardCount: number;
+  scores: [string, number][];
 }
