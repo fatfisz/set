@@ -1,5 +1,14 @@
 import produce, { Draft } from 'immer';
-import { createContext, ReactNode, useCallback, useReducer } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+} from 'react';
+
+import { SocketContext } from 'components/SocketContext';
 
 interface TableState {
   selected: Readonly<number[]>;
@@ -27,6 +36,7 @@ const initialState: TableState = {
 };
 
 export function TableStateProvider({ children }: { children: ReactNode }) {
+  const { selectSet } = useContext(SocketContext);
   const [state, dispatch] = useReducer(tableStateReducer, initialState);
   const value = {
     checkIsSelected: useCallback(
@@ -39,6 +49,15 @@ export function TableStateProvider({ children }: { children: ReactNode }) {
     ),
     reset: useCallback(() => dispatch({ type: 'reset' }), []),
   };
+
+  useEffect(() => {
+    if (state.selected.length !== 3) {
+      return;
+    }
+
+    selectSet(state.selected);
+    dispatch({ type: 'reset' });
+  }, [state.selected.length]);
 
   return (
     <TableStateContext.Provider value={value}>
