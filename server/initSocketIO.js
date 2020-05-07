@@ -51,7 +51,9 @@ function setUpSocket(socket, room) {
 
   socket.on('set selected', (cards) => {
     if (room.trySelectSet(playerId, cards)) {
-      socket.broadcast.emit('room state changed', room.getState());
+      const roomState = room.getState();
+      socket.emit('room state changed', roomState);
+      socket.broadcast.emit('room state changed', roomState);
     }
   });
 }
