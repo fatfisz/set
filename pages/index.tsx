@@ -13,9 +13,15 @@ export default function Index() {
     onRoomStateChanged(setRoomState);
   }, []);
 
+  if (!roomState) {
+    return null;
+  }
+
   return (
-    <SelectedCardsProvider>
-      <Table cards={roomState?.cards} />
-    </SelectedCardsProvider>
+    <>
+      <SelectedCardsProvider>
+        <Table cards={roomState.cards} />
+      </SelectedCardsProvider>
+    </>
   );
 }

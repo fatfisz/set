@@ -7,7 +7,7 @@ import { cardHeight, cardWidth, emptyCard, rowCount } from 'config/card';
 const padding = 32;
 const gap = 32;
 
-export function Table({ cards }: { cards?: number[] }) {
+export function Table({ cards }: { cards: number[] }) {
   const resetOnClick = useResetOnClick();
   return (
     <>
@@ -37,11 +37,7 @@ function useResetOnClick() {
   );
 }
 
-function TableCards({ cards }: { cards?: number[] }) {
-  if (!cards) {
-    return null;
-  }
-
+function TableCards({ cards }: { cards: number[] }) {
   const columnCount = Math.ceil(cards.length / rowCount);
   const width = 2 * padding + columnCount * (cardWidth + gap) - gap;
 
