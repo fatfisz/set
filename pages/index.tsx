@@ -3,18 +3,19 @@ import { useContext, useEffect, useState } from 'react';
 import { SocketContext } from 'components/SocketContext';
 import { Table } from 'components/Table';
 import { TableStateProvider } from 'components/TableStateContext';
+import { RoomState } from 'types/RoomState';
 
 export default function Index() {
-  const { onRoomJoined } = useContext(SocketContext);
-  const [cards, setCards] = useState<number[]>();
+  const { onRoomStateChanged } = useContext(SocketContext);
+  const [roomState, setRoomState] = useState<RoomState | undefined>();
 
   useEffect(() => {
-    onRoomJoined(setCards);
+    onRoomStateChanged(setRoomState);
   }, []);
 
   return (
     <TableStateProvider>
-      <Table cards={cards} />
+      <Table cards={roomState?.cards} />
     </TableStateProvider>
   );
 }

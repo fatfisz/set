@@ -8,10 +8,12 @@ import {
 } from 'react';
 import io from 'socket.io-client';
 
+import { RoomState } from 'types/RoomState';
+
 export const SocketContext = createContext<{
-  onRoomJoined(listener: (cards: number[]) => void): void;
+  onRoomStateChanged(listener: (roomState: RoomState) => void): void;
 }>({
-  onRoomJoined() {},
+  onRoomStateChanged() {},
 });
 
 const storageIdKey = 'sessionId';
@@ -32,13 +34,14 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
       socket.emit('session id received', sessionId);
     });
 
-    socket.on('room joined', (cards: number[]) => {
-      eventEmitter.emit('room joined', cards);
+    socket.on('room state changed', (roomState: RoomState) => {
+      eventEmitter.emit('room state changed', roomState);
     });
   }, []);
 
   const value: ContextType<typeof SocketContext> = {
-    onRoomJoined: (listener) => eventEmitter.on('room joined', listener),
+    onRoomStateChanged: (listener) =>
+      eventEmitter.on('room state changed', listener),
   };
 
   return (

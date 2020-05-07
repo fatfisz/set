@@ -8,8 +8,10 @@ exports.Players = class Players {
     );
   }
 
-  addPlayer(playerId) {
-    this.#players.set(playerId, 0);
+  ensurePlayer(playerId) {
+    if (!this.#players.has(playerId)) {
+      this.#players.set(playerId, 0);
+    }
   }
 
   increasePlayerScore(playerId) {

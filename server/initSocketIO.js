@@ -45,5 +45,13 @@ exports.initSocketIO = function initSocketIO(server) {
 };
 
 function setUpSocket(socket, room) {
-  socket.emit('room joined', room.table.getCards());
+  const { sessionId: playerId } = socket.handshake.query;
+
+  socket.emit('room state changed', room.getState());
+
+  socket.on('set selected', (cards) => {
+    if (room.trySelectSet(playerId, cards)) {
+      socket.broadcast.emit('room state changed', room.getState());
+    }
+  });
 }
