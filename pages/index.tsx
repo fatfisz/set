@@ -6,11 +6,15 @@ import { Table } from 'components/Table';
 import { RoomState } from 'types/RoomState';
 
 export default function Index() {
-  const { onRoomStateChanged } = useContext(SocketContext);
+  const { joinRoom, onRoomStateChanged } = useContext(SocketContext);
   const [roomState, setRoomState] = useState<RoomState | undefined>();
 
   useEffect(() => {
-    onRoomStateChanged(setRoomState);
+    joinRoom();
+    const removeListener = onRoomStateChanged(setRoomState);
+    return () => {
+      removeListener();
+    };
   }, []);
 
   if (!roomState) {

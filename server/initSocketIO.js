@@ -47,13 +47,24 @@ exports.initSocketIO = function initSocketIO(server) {
 function setUpSocket(socket, room) {
   const { sessionId: playerId } = socket.handshake.query;
 
-  socket.emit('room state changed', room.getState());
+  function emitRoomStateChanged(everyone = false) {
+    const roomState = room.getState();
+    socket.emit('room state changed', roomState);
+    if (everyone) {
+      socket.broadcast.emit('room state changed', roomState);
+    }
+  }
+
+  emitRoomStateChanged();
+
+  socket.on('room joined', () => {
+    emitRoomStateChanged();
+  });
 
   socket.on('set selected', (cards) => {
     if (room.trySelectSet(playerId, cards)) {
       const roomState = room.getState();
-      socket.emit('room state changed', roomState);
-      socket.broadcast.emit('room state changed', roomState);
+      emitRoomStateChanged(true);
     }
   });
 }
