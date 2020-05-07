@@ -5,7 +5,6 @@ exports.Table = class Table {
   #cards;
   #nextCardIndex;
   #tableCards;
-  #tableCardsCount;
 
   constructor() {
     this.#cards = getShuffledCards();
@@ -14,20 +13,25 @@ exports.Table = class Table {
       { length: this.#cards.length },
       () => emptyCard
     );
-    this.#tableCardsCount = 0;
     this.#fill();
   }
 
   #fill() {
     while (
       this.getRemainingCardCount() &&
-      this.#tableCardsCount < maxTableCards
+      this.#getTableCardsCount() < maxTableCards
     ) {
       const indexToFill = this.#tableCards.indexOf(emptyCard);
       this.#tableCards[indexToFill] = this.#cards[this.#nextCardIndex];
       this.#nextCardIndex += 1;
-      this.#tableCardsCount += 1;
     }
+  }
+
+  #getTableCardsCount() {
+    return this.#tableCards.reduce(
+      (tableCardsCount, card) => tableCardsCount + (card === emptyCard ? 0 : 1),
+      0
+    );
   }
 
   getCards() {
@@ -49,6 +53,10 @@ exports.Table = class Table {
     }
 
     if (!cards.every((card) => this.#tableCards.includes(card))) {
+      return false;
+    }
+
+    if (!checkIfMakeSet(cards)) {
       return false;
     }
 
@@ -83,4 +91,22 @@ function getLastNonEmptyIndex(cards) {
     }
   }
   return -1;
+}
+
+function checkIfMakeSet(cards) {
+  for (let propertyIndex = 0; propertyIndex < 4; propertyIndex += 1) {
+    const differentPropertiesCount = new Set(
+      cards.map((card) => getBase3Digit(card, propertyIndex))
+    ).size;
+
+    if (![1, 3].includes(differentPropertiesCount)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function getBase3Digit(number, digit) {
+  return Math.floor((number % 3 ** (digit + 1)) / 3 ** digit);
 }
