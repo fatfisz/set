@@ -16,14 +16,13 @@ exports.initSocketIO = function initSocketIO(server) {
     let { sessionId } = socket.handshake.query;
 
     function setUp() {
-      setUpSocket(socket, room);
+      setUpSocket(socket, sessionId, room);
     }
 
     if (acceptedIds.has(sessionId)) {
       setUp();
     } else {
       sessionId = nanoid();
-      acceptedIds.add(sessionId);
       socket.emit('session id generated', sessionId);
     }
 
@@ -34,6 +33,7 @@ exports.initSocketIO = function initSocketIO(server) {
       if (clientSessionId !== sessionId) {
         socket.disconnect();
       }
+      acceptedIds.add(sessionId);
       setUp();
     });
 
@@ -44,9 +44,7 @@ exports.initSocketIO = function initSocketIO(server) {
   });
 };
 
-function setUpSocket(socket, room) {
-  const { sessionId } = socket.handshake.query;
-
+function setUpSocket(socket, sessionId, room) {
   function emitRoomStateChanged(everyone = false) {
     const roomState = room.getState();
     socket.emit('room state changed', roomState);
