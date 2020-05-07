@@ -45,5 +45,5 @@ exports.initSocketIO = function initSocketIO(server) {
 };
 
 function setUpSocket(socket, room) {
-  socket.emit('room joined', room.getTableCards());
+  socket.emit('room joined', room.table.getCards());
 }
