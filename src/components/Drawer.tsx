@@ -1,5 +1,6 @@
 import { useContext, ReactNode } from 'react';
 
+import { Nick } from 'components/Nick';
 import { SocketContext } from 'components/SocketContext';
 
 export function Drawer({
@@ -19,6 +20,7 @@ export function Drawer({
   return (
     <>
       <div className="drawer">
+        <Nick />
         <button
           disabled={remainingCardCount === 0}
           onClick={() => addNextCard()}
