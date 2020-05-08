@@ -8,6 +8,14 @@ exports.Players = class Players {
     );
   }
 
+  hasPlayer(sessionId) {
+    return this.#players.has(sessionId);
+  }
+
+  getPlayerCount() {
+    return this.#players.size;
+  }
+
   ensurePlayer(sessionId) {
     if (!this.#players.has(sessionId)) {
       this.#players.set(sessionId, 0);

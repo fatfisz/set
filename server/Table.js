@@ -21,11 +21,21 @@ exports.Table = class Table {
       this.getRemainingCardCount() &&
       this.#getTableCardsCount() < maxTableCards
     ) {
+      this.#addNextCard();
+    }
+  }
+
+  tryAddNextCard() {
+    if (this.getRemainingCardCount() > 0) {
+      this.#addNextCard();
+    }
+  }
+
+  #addNextCard() {
       const indexToFill = this.#tableCards.indexOf(emptyCard);
       this.#tableCards[indexToFill] = this.#cards[this.#nextCardIndex];
       this.#nextCardIndex += 1;
     }
-  }
 
   #getTableCardsCount() {
     return this.#tableCards.reduce(

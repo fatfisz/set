@@ -9,11 +9,18 @@ export function Status({
   remainingCardCount: number;
   scores: [string, number][];
 }) {
-  const { sessionId: currentSessionId } = useContext(SocketContext);
-  console.log(scores, currentSessionId);
+  const { sessionId: currentSessionId, addNextCard } = useContext(
+    SocketContext
+  );
   return (
     <>
       <div className="status">
+        <button
+          disabled={remainingCardCount === 0}
+          onClick={() => addNextCard()}
+        >
+          Add one more card
+        </button>
         <Info label="Remaining cards" value={remainingCardCount} />
         <Info
           label="Your score"

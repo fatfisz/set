@@ -64,4 +64,9 @@ function setUpSocket(socket, sessionId, room) {
       emitRoomStateChanged(true);
     }
   });
+
+  socket.on('add next card', () => {
+    room.requestNextCard(sessionId);
+    emitRoomStateChanged(true);
+  });
 }

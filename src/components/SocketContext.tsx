@@ -12,17 +12,20 @@ import io from 'socket.io-client';
 import { RoomState } from 'types/RoomState';
 
 interface SocketEvents {
+  'add next card': [];
   'room joined': [];
   'room state changed': [RoomState];
   'set selected': [Readonly<number[]>];
 }
 
 export const SocketContext = createContext<{
+  addNextCard(): void;
   joinRoom(): void;
   selectSet(cards: Readonly<number[]>): void;
   sessionId: string;
   onRoomStateChanged(listener: (roomState: RoomState) => void): () => void;
 }>({
+  addNextCard() {},
   joinRoom() {},
   selectSet() {},
   sessionId: '',
@@ -63,10 +66,15 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
     eventEmitter.on('set selected', (cards) => {
       socket.emit('set selected', cards);
     });
+
+    eventEmitter.on('add next card', () => {
+      socket.emit('add next card');
+    });
   }, []);
 
   const value: ContextType<typeof SocketContext> = {
     sessionId,
+    addNextCard: () => eventEmitter.emit('add next card'),
     joinRoom: () => eventEmitter.emit('room joined'),
     selectSet: (cards) => eventEmitter.emit('set selected', cards),
     onRoomStateChanged: (listener) => {
