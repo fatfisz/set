@@ -9,26 +9,31 @@ import {
 } from 'react';
 import io from 'socket.io-client';
 
-import { RoomState } from 'types/RoomState';
+import { RoomState, ServerRoomState } from 'types/RoomState';
 
 interface SocketEvents {
   'add next card': [];
+  'name set': [string];
   'room joined': [];
   'room state changed': [RoomState];
   'set selected': [Readonly<number[]>];
 }
 
 export const SocketContext = createContext<{
+  name: string;
+  sessionId: string;
   addNextCard(): void;
   joinRoom(): void;
   selectSet(cards: Readonly<number[]>): void;
-  sessionId: string;
+  setName(name: string): void;
   onRoomStateChanged(listener: (roomState: RoomState) => void): () => void;
 }>({
+  name: '',
+  sessionId: '',
   addNextCard() {},
   joinRoom() {},
   selectSet() {},
-  sessionId: '',
+  setName() {},
   onRoomStateChanged() {
     return () => {};
   },
@@ -38,6 +43,7 @@ const storageIdKey = 'sessionId';
 
 export function SocketContextProvider({ children }: { children: ReactNode }) {
   const eventEmitter = useMemo(() => new EventEmitter<SocketEvents>(), []);
+  const [name, setName] = useState('');
   const [sessionId, setSessionId] = useState('');
 
   useEffect(() => {
@@ -55,8 +61,20 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
       socket.emit('session id received', sessionId);
     });
 
-    socket.on('room state changed', (roomState: RoomState) => {
-      eventEmitter.emit('room state changed', roomState);
+    socket.on(
+      'room state changed',
+      ({ names, ...roomState }: ServerRoomState) => {
+        setName(names[localStorage.getItem(storageIdKey) as string]);
+        eventEmitter.emit('room state changed', roomState);
+      }
+    );
+
+    eventEmitter.on('add next card', () => {
+      socket.emit('add next card');
+    });
+
+    eventEmitter.on('name set', (name) => {
+      socket.emit('name set', name);
     });
 
     eventEmitter.on('room joined', () => {
@@ -67,16 +85,18 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
       socket.emit('set selected', cards);
     });
 
-    eventEmitter.on('add next card', () => {
-      socket.emit('add next card');
-    });
+    return () => {
+      eventEmitter.removeAllListeners();
+    };
   }, []);
 
   const value: ContextType<typeof SocketContext> = {
+    name,
     sessionId,
     addNextCard: () => eventEmitter.emit('add next card'),
     joinRoom: () => eventEmitter.emit('room joined'),
     selectSet: (cards) => eventEmitter.emit('set selected', cards),
+    setName: (name) => eventEmitter.emit('name set', name),
     onRoomStateChanged: (listener) => {
       eventEmitter.on('room state changed', listener);
       return () => eventEmitter.off('room state changed', listener);

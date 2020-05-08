@@ -7,7 +7,11 @@ export function Drawer({
   scores,
 }: {
   remainingCardCount: number;
-  scores: [string, number][];
+  scores: {
+    sessionId: string;
+    name: string;
+    score: number;
+  }[];
 }) {
   const { sessionId: currentSessionId, addNextCard } = useContext(
     SocketContext
@@ -25,15 +29,15 @@ export function Drawer({
         <Info
           label="Your score"
           value={
-            scores.find(([sessionId]) => sessionId === currentSessionId)?.[1] ??
-            0
+            scores.find(({ sessionId }) => sessionId === currentSessionId)
+              ?.score ?? 0
           }
         />
         <Spacer />
         {scores
-          .filter(([sessionId]) => sessionId !== currentSessionId)
-          .map(([sessionId, score]) => (
-            <Info key={sessionId} label={sessionId} value={score} />
+          .filter(({ sessionId }) => sessionId !== currentSessionId)
+          .map(({ sessionId, name, score }) => (
+            <Info key={sessionId} label={name} value={score} />
           ))}
       </div>
 

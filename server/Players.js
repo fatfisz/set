@@ -1,31 +1,45 @@
 exports.Players = class Players {
-  #players = new Map();
+  #sessionIds = new Set();
+  #scores = new Map();
 
-  getScores() {
-    return [...this.#players.entries()].sort(
-      ([sessionIdA, scoreA], [sessionIdB, scoreB]) =>
-        scoreB - scoreA || sessionIdA.localeCompare(sessionIdB)
-    );
+  getScores(names) {
+    return [...this.#sessionIds]
+      .map((sessionId) => ({
+        sessionId,
+        name: names.get(sessionId),
+        score: this.#scores.get(sessionId),
+      }))
+      .sort(
+        (playerA, playerB) =>
+          playerB.score - playerA.score ||
+          playerA.sessionId.localeCompare(playerB.sessionId)
+      );
   }
 
-  hasPlayer(sessionId) {
-    return this.#players.has(sessionId);
+  has(sessionId) {
+    return this.#sessionIds.has(sessionId);
   }
 
-  getPlayerCount() {
-    return this.#players.size;
+  getCount() {
+    return this.#sessionIds.size;
   }
 
-  ensurePlayer(sessionId) {
-    if (!this.#players.has(sessionId)) {
-      this.#players.set(sessionId, 0);
+  add(sessionId) {
+    if (!this.has(sessionId)) {
+      this.#sessionIds.add(sessionId);
+      this.#scores.set(sessionId, 0);
     }
   }
 
-  increasePlayerScore(sessionId) {
-    if (!this.#players.has(sessionId)) {
+  delete(sessionId) {
+    this.#sessionIds.delete(sessionId);
+    this.#scores.delete(sessionId);
+  }
+
+  increaseScore(sessionId) {
+    if (!this.has(sessionId)) {
       return;
     }
-    this.#players.set(sessionId, this.#players.get(sessionId) + 1);
+    this.#scores.set(sessionId, this.#scores.get(sessionId) + 1);
   }
 };

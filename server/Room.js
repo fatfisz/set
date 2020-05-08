@@ -6,12 +6,13 @@ exports.Room = class Room {
   table = new Table();
   #nextCardRequests = new Set();
 
-  getState() {
+  getState(names) {
     return {
       cards: this.table.getCards(),
+      names: Object.fromEntries(names.entries()),
       nextCardRequests: [...this.#nextCardRequests],
       remainingCardCount: this.table.getRemainingCardCount(),
-      scores: this.players.getScores(),
+      scores: this.players.getScores(names),
     };
   }
 
@@ -20,17 +21,16 @@ exports.Room = class Room {
       return false;
     }
 
-    this.players.ensurePlayer(sessionId);
-    this.players.increasePlayerScore(sessionId);
+    this.players.increaseScore(sessionId);
     this.#clearNextCardRequests();
     return true;
   }
 
   requestNextCard(sessionId) {
-    if (this.players.hasPlayer(sessionId)) {
+    if (this.players.has(sessionId)) {
       this.#nextCardRequests.add(sessionId);
 
-      if (this.#nextCardRequests.size === this.players.getPlayerCount()) {
+      if (this.#nextCardRequests.size === this.players.getCount()) {
         this.table.tryAddNextCard();
       }
     }
