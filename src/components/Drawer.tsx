@@ -2,7 +2,7 @@ import { useContext, ReactNode } from 'react';
 
 import { SocketContext } from 'components/SocketContext';
 
-export function Status({
+export function Drawer({
   remainingCardCount,
   scores,
 }: {
@@ -14,7 +14,7 @@ export function Status({
   );
   return (
     <>
-      <div className="status">
+      <div className="drawer">
         <button
           disabled={remainingCardCount === 0}
           onClick={() => addNextCard()}
@@ -38,7 +38,7 @@ export function Status({
       </div>
 
       <style jsx>{`
-        .status {
+        .drawer {
           aligin-items: start;
           background: #000000a0;
           cursor: default;

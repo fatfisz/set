@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 
+import { Drawer } from 'components/Drawer';
 import { SelectedCardsProvider } from 'components/SelectedCardsContext';
 import { SocketContext } from 'components/SocketContext';
-import { Status } from 'components/Status';
 import { Table } from 'components/Table';
 import { RoomState } from 'types/RoomState';
 
@@ -28,7 +28,7 @@ export default function Index() {
         <SelectedCardsProvider>
           <Table cards={roomState.cards} />
         </SelectedCardsProvider>
-        <Status
+        <Drawer
           remainingCardCount={roomState.remainingCardCount}
           scores={roomState.scores}
         />
