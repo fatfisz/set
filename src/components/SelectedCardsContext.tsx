@@ -14,18 +14,18 @@ type SelectedCards = Readonly<number[]>;
 
 type SelectedCardsAction =
   | {
-      type: 'select';
+      type: 'toggleSelect';
       payload: number;
     }
   | { type: 'reset' };
 
 export const SelectedCardsContext = createContext<{
   checkIsSelected(card: number): boolean;
-  select(card: number): void;
+  toggleSelect(card: number): void;
   reset(): void;
 }>({
   checkIsSelected: () => false,
-  select: () => {},
+  toggleSelect: () => {},
   reset: () => {},
 });
 
@@ -38,8 +38,8 @@ export function SelectedCardsProvider({ children }: { children: ReactNode }) {
     checkIsSelected: useCallback((card: number) => state.includes(card), [
       state,
     ]),
-    select: useCallback(
-      (card: number) => dispatch({ type: 'select', payload: card }),
+    toggleSelect: useCallback(
+      (card: number) => dispatch({ type: 'toggleSelect', payload: card }),
       []
     ),
     reset: useCallback(() => dispatch({ type: 'reset' }), []),
@@ -64,8 +64,10 @@ export function SelectedCardsProvider({ children }: { children: ReactNode }) {
 const selectedCardsReducer = produce(
   (state: Draft<SelectedCards>, action: SelectedCardsAction) => {
     switch (action.type) {
-      case 'select':
-        if (!state.includes(action.payload)) {
+      case 'toggleSelect':
+        if (state.includes(action.payload)) {
+          state.splice(state.indexOf(action.payload), 1);
+        } else {
           state.push(action.payload);
         }
         return;

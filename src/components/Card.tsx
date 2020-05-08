@@ -9,14 +9,14 @@ import * as colors from 'config/colors';
 
 export function Card({ card }: { card: number }) {
   const { color, number, shade, shape } = cardNumberToDescription(card);
-  const { checkIsSelected, select } = useContext(SelectedCardsContext);
+  const { checkIsSelected, toggleSelect } = useContext(SelectedCardsContext);
   return (
     <>
       <div
         className={classNames('card', {
           selected: checkIsSelected(card),
         })}
-        onClick={() => select(card)}
+        onClick={() => toggleSelect(card)}
       >
         {Array.from({ length: number }, (_value, key) => (
           <ShapeImage key={key} color={color} shade={shade} shape={shape} />
