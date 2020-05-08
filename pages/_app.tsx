@@ -3,19 +3,22 @@ import Head from 'next/head';
 
 import { CardDefs } from 'components/CardDefs';
 import { SocketContextProvider } from 'components/SocketContext';
+import { Title } from 'components/Title';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>The Game of Set</title>
         <link
           href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&amp;display=swap"
           rel="stylesheet"
         />
       </Head>
 
+      <Title />
+
       <CardDefs />
+
       <SocketContextProvider>
         <Component {...pageProps} />
       </SocketContextProvider>
