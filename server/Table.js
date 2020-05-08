@@ -18,7 +18,7 @@ exports.Table = class Table {
 
   #fill() {
     while (
-      this.getRemainingCardCount() &&
+      this.getRemainingCardCount() > 0 &&
       this.#getTableCardsCount() < maxTableCards
     ) {
       this.#addNextCard();
@@ -32,10 +32,10 @@ exports.Table = class Table {
   }
 
   #addNextCard() {
-      const indexToFill = this.#tableCards.indexOf(emptyCard);
-      this.#tableCards[indexToFill] = this.#cards[this.#nextCardIndex];
-      this.#nextCardIndex += 1;
-    }
+    const indexToFill = this.#tableCards.indexOf(emptyCard);
+    this.#tableCards[indexToFill] = this.#cards[this.#nextCardIndex];
+    this.#nextCardIndex += 1;
+  }
 
   #getTableCardsCount() {
     return this.#tableCards.reduce(
