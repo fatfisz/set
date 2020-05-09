@@ -50,7 +50,7 @@ exports.Table = class Table {
   }
 
   getRemainingCardCount() {
-    return this.#cards.length - this.#nextCardIndex + 1;
+    return this.#cards.length - this.#nextCardIndex;
   }
 
   popSet(cards) {
