@@ -10,6 +10,7 @@ import {
 import io from 'socket.io-client';
 
 import { RoomState, ServerRoomState } from 'types/RoomState';
+import * as validators from 'validators';
 
 interface SocketEvents {
   'add next card': [];
@@ -56,18 +57,18 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
     setSessionId(sessionId);
 
     socket.on('session id generated', (sessionId: string) => {
+      validators.sessionId(sessionId);
       localStorage.setItem(storageIdKey, sessionId);
       setSessionId(sessionId);
       socket.emit('session id received', sessionId);
     });
 
-    socket.on(
-      'room state changed',
-      ({ names, ...roomState }: ServerRoomState) => {
-        setName(names[localStorage.getItem(storageIdKey) as string]);
-        eventEmitter.emit('room state changed', roomState);
-      }
-    );
+    socket.on('room state changed', (serverRoomState: ServerRoomState) => {
+      validators.roomState(serverRoomState);
+      const { names, ...roomState } = serverRoomState;
+      setName(names[localStorage.getItem(storageIdKey) as string]);
+      eventEmitter.emit('room state changed', roomState);
+    });
 
     eventEmitter.on('add next card', () => {
       socket.emit('add next card');
