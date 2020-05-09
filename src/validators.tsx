@@ -1,52 +1,54 @@
 import Ajv, { ErrorObject } from 'ajv';
+import { ServerEvents } from 'types/ServerEvents';
 
 const ajv = new Ajv();
 
-export const sessionId = getValidator({
-  type: 'string',
-});
-
-export const roomState = getValidator({
-  type: 'object',
-  properties: {
-    cards: {
-      type: 'array',
-      items: {
+export const validators: Record<keyof ServerEvents, (value: any) => void> = {
+  'room state changed': getValidator({
+    type: 'object',
+    properties: {
+      cards: {
+        type: 'array',
+        items: {
+          type: 'number',
+        },
+      },
+      names: {
+        type: 'object',
+        patternProperties: {
+          '': {
+            type: 'string',
+          },
+        },
+      },
+      remainingCardCount: {
         type: 'number',
       },
-    },
-    names: {
-      type: 'object',
-      patternProperties: {
-        '': {
-          type: 'string',
+      scores: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            sessionId: {
+              type: 'string',
+            },
+            name: {
+              type: 'string',
+            },
+            score: {
+              type: 'number',
+            },
+          },
+          required: ['sessionId', 'name', 'score'],
         },
       },
     },
-    remainingCardCount: {
-      type: 'number',
-    },
-    scores: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          sessionId: {
-            type: 'string',
-          },
-          name: {
-            type: 'string',
-          },
-          score: {
-            type: 'number',
-          },
-        },
-        required: ['sessionId', 'name', 'score'],
-      },
-    },
-  },
-  required: ['cards', 'names', 'remainingCardCount', 'scores'],
-});
+    required: ['cards', 'names', 'remainingCardCount', 'scores'],
+  }),
+  'session id generated': getValidator({
+    type: 'string',
+  }),
+};
 
 function getValidator(schema: any) {
   const validate = ajv.compile(schema);

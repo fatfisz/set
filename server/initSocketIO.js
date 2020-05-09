@@ -21,11 +21,12 @@ exports.initSocketIO = function initSocketIO(server) {
   }
 
   io.on('connect', async (socket) => {
-    let { sessionId } = socket.handshake.query;
+    const sessionId = ensureSessionId();
     let tearDown = () => {};
 
-    function setUp() {
-      tearDown = setUpSocket(names, room, socket, sessionId);
+    function ensureSessionId() {
+      const { sessionId } = socket.handshake.query;
+      return acceptedIds.has(sessionId) ? sessionId : nanoid();
     }
 
     async function addNewPlayer(sessionId) {
@@ -34,17 +35,12 @@ exports.initSocketIO = function initSocketIO(server) {
       room.players.add(sessionId);
     }
 
-    async function disconnectPlayer(sessionId) {
+    function disconnectPlayer(sessionId) {
       room.players.delete(sessionId);
       tearDown();
     }
 
-    if (acceptedIds.has(sessionId)) {
-      setUp();
-    } else {
-      sessionId = nanoid();
-      socket.emit('session id generated', sessionId);
-    }
+    socket.emit('session id generated', sessionId);
 
     userCount += 1;
     console.log(`User joined: ${sessionId} (${userCount} total)`);
@@ -54,11 +50,11 @@ exports.initSocketIO = function initSocketIO(server) {
         socket.disconnect();
       }
       await addNewPlayer(sessionId);
-      setUp();
+      tearDown = setUpSocket(names, room, socket, sessionId);
     });
 
-    socket.on('disconnect', async () => {
-      await disconnectPlayer(sessionId);
+    socket.on('disconnect', () => {
+      disconnectPlayer(sessionId);
       userCount -= 1;
       console.log(`User left: ${sessionId} (${userCount} total)`);
     });

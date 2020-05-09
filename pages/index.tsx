@@ -12,11 +12,12 @@ export default function Index() {
 
   useEffect(() => {
     joinRoom();
+  }, [joinRoom]);
+
+  useEffect(() => {
     const removeListener = onRoomStateChanged(setRoomState);
-    return () => {
-      removeListener();
-    };
-  }, []);
+    return () => removeListener();
+  }, [onRoomStateChanged]);
 
   if (!roomState) {
     return null;
