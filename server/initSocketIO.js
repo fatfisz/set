@@ -82,8 +82,8 @@ function setUpSocket(names, room, socket, sessionId) {
   });
 
   socket.on('name set', (name) => {
-    console.log(name);
-    // SET THE NAME
+    names.set(sessionId, name);
+    emitRoomStateChanged(true);
   });
 
   socket.on('set selected', (cards) => {
