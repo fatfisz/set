@@ -58,7 +58,7 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
     'room state changed',
     (serverRoomState) => {
       const { names, ...roomState } = serverRoomState;
-      setName(names[localStorage.getItem(storageIdKey) as string]);
+      setName(names[sessionId]);
       eventEmitter.emit('room state changed', roomState);
     },
     [sessionId]
