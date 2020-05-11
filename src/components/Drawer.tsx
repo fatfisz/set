@@ -4,9 +4,13 @@ import { Nick } from 'components/Nick';
 import { SocketContext } from 'components/SocketContext';
 
 export function Drawer({
+  options,
   remainingCardCount,
   scores,
 }: {
+  options: {
+    autoAddCard: boolean;
+  };
   remainingCardCount: number;
   scores: {
     sessionId: string;
@@ -21,12 +25,14 @@ export function Drawer({
     <>
       <div className="drawer">
         <Nick />
-        <button
-          disabled={remainingCardCount === 0}
-          onClick={() => addNextCard()}
-        >
-          Add one more card
-        </button>
+        {!options.autoAddCard && (
+          <button
+            disabled={remainingCardCount === 0}
+            onClick={() => addNextCard()}
+          >
+            Add one more card
+          </button>
+        )}
         <Info label="Remaining cards" value={remainingCardCount} />
         <Info
           label="Your score"

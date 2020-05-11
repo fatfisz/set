@@ -21,6 +21,15 @@ export const validators: Record<keyof ServerEvents, (value: any) => void> = {
           },
         },
       },
+      options: {
+        type: 'object',
+        properties: {
+          autoAddCard: {
+            type: 'boolean',
+          },
+        },
+        required: ['autoAddCard'],
+      },
       remainingCardCount: {
         type: 'number',
       },

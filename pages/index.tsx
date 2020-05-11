@@ -30,6 +30,7 @@ export default function Index() {
           <Table cards={roomState.cards} />
         </SelectedCardsProvider>
         <Drawer
+          options={roomState.options}
           remainingCardCount={roomState.remainingCardCount}
           scores={roomState.scores}
         />

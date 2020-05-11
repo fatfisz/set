@@ -2,6 +2,9 @@ const { Players } = require('./Players');
 const { Table } = require('./Table');
 
 exports.Room = class Room {
+  #options = {
+    autoAddCard: true,
+  };
   players = new Players();
   table = new Table();
   #nextCardRequests = new Set();
@@ -11,6 +14,7 @@ exports.Room = class Room {
       cards: this.table.getCards(),
       names: Object.fromEntries(names.entries()),
       nextCardRequests: [...this.#nextCardRequests],
+      options: this.#options,
       remainingCardCount: this.table.getRemainingCardCount(),
       scores: this.players.getScores(names),
     };
@@ -27,6 +31,10 @@ exports.Room = class Room {
   }
 
   requestNextCard(sessionId) {
+    if (this.#options.autoAddCard) {
+      return;
+    }
+
     if (this.players.has(sessionId)) {
       this.#nextCardRequests.add(sessionId);
 
