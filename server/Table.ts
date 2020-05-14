@@ -1,59 +1,59 @@
 const maxTableCards = 12;
 const emptyCard = -1;
 
-exports.Table = class Table {
-  #cards;
-  #nextCardIndex;
-  #tableCards;
+export class Table {
+  private cards: number[];
+  private nextCardIndex: number;
+  private tableCards: number[];
 
   constructor() {
-    this.#cards = getShuffledCards();
-    this.#nextCardIndex = 0;
-    this.#tableCards = Array.from(
-      { length: this.#cards.length },
+    this.cards = getShuffledCards();
+    this.nextCardIndex = 0;
+    this.tableCards = Array.from(
+      { length: this.cards.length },
       () => emptyCard
     );
-    this.#fill();
+    this.fill();
   }
 
-  #fill() {
+  private fill() {
     while (
       this.getRemainingCardCount() > 0 &&
-      this.#getTableCardsCount() < maxTableCards
+      this.getTableCardsCount() < maxTableCards
     ) {
-      this.#addNextCard();
+      this.addNextCard();
     }
   }
 
   tryAddNextCard() {
     if (this.getRemainingCardCount() > 0) {
-      this.#addNextCard();
+      this.addNextCard();
     }
   }
 
-  #addNextCard() {
-    const indexToFill = this.#tableCards.indexOf(emptyCard);
-    this.#tableCards[indexToFill] = this.#cards[this.#nextCardIndex];
-    this.#nextCardIndex += 1;
+  private addNextCard() {
+    const indexToFill = this.tableCards.indexOf(emptyCard);
+    this.tableCards[indexToFill] = this.cards[this.nextCardIndex];
+    this.nextCardIndex += 1;
   }
 
-  #getTableCardsCount() {
-    return this.#tableCards.reduce(
+  private getTableCardsCount() {
+    return this.tableCards.reduce(
       (tableCardsCount, card) => tableCardsCount + (card === emptyCard ? 0 : 1),
       0
     );
   }
 
   getCards() {
-    const lastNonEmptyIndex = getLastNonEmptyIndex(this.#tableCards);
-    return this.#tableCards.slice(0, lastNonEmptyIndex + 1);
+    const lastNonEmptyIndex = getLastNonEmptyIndex(this.tableCards);
+    return this.tableCards.slice(0, lastNonEmptyIndex + 1);
   }
 
   getRemainingCardCount() {
-    return this.#cards.length - this.#nextCardIndex;
+    return this.cards.length - this.nextCardIndex;
   }
 
-  popSet(cards) {
+  popSet(cards: number[]) {
     if (new Set(cards).size !== 3) {
       return false;
     }
@@ -62,7 +62,7 @@ exports.Table = class Table {
       return false;
     }
 
-    if (!cards.every((card) => this.#tableCards.includes(card))) {
+    if (!cards.every((card) => this.tableCards.includes(card))) {
       return false;
     }
 
@@ -71,20 +71,20 @@ exports.Table = class Table {
     }
 
     for (const card of cards) {
-      this.#tableCards[this.#tableCards.indexOf(card)] = -1;
+      this.tableCards[this.tableCards.indexOf(card)] = -1;
     }
-    this.#fill();
+    this.fill();
     return true;
   }
 
   addUntilHasSet() {
-    while (this.getRemainingCardCount() > 0 && !this.#hasSet()) {
-      this.#addNextCard();
+    while (this.getRemainingCardCount() > 0 && !this.hasSet()) {
+      this.addNextCard();
     }
   }
 
-  #hasSet() {
-    const nonEmptyCards = this.#tableCards.filter((card) => card !== emptyCard);
+  private hasSet() {
+    const nonEmptyCards = this.tableCards.filter((card) => card !== emptyCard);
     for (
       let firstIndex = 0;
       firstIndex < nonEmptyCards.length;
@@ -105,7 +105,7 @@ exports.Table = class Table {
     }
     return false;
   }
-};
+}
 
 function getShuffledCards() {
   const cards = Array.from({ length: 3 ** 4 }, (_value, index) => index);
@@ -123,7 +123,7 @@ function getShuffledCards() {
   return cards;
 }
 
-function getLastNonEmptyIndex(cards) {
+function getLastNonEmptyIndex(cards: number[]) {
   for (let index = cards.length - 1; index >= 0; index -= 1) {
     if (cards[index] !== emptyCard) {
       return index;
@@ -132,7 +132,7 @@ function getLastNonEmptyIndex(cards) {
   return -1;
 }
 
-function checkIfMakeSet(cards) {
+function checkIfMakeSet(cards: number[]) {
   for (let propertyIndex = 0; propertyIndex < 4; propertyIndex += 1) {
     const values = new Set(
       cards.map((card) => getBase3Digit(card, propertyIndex))
@@ -146,12 +146,12 @@ function checkIfMakeSet(cards) {
   return true;
 }
 
-function getBase3Digit(number, digit) {
+function getBase3Digit(number: number, digit: number) {
   return Math.floor((number % 3 ** (digit + 1)) / 3 ** digit);
 }
 
-function getCardThatCompletesSet(cards) {
-  const digits = [];
+function getCardThatCompletesSet(cards: number[]) {
+  const digits: number[] = [];
 
   for (let propertyIndex = 0; propertyIndex < 4; propertyIndex += 1) {
     const values = new Set(

@@ -11,13 +11,19 @@ import {
 } from 'react';
 import io from 'socket.io-client';
 
+import { serverPort } from 'shared/serverPort';
+import { ServerEvents } from 'shared/types/ServerEvents';
+import {
+  ClientSocket,
+  EmittedEvents,
+  ReceivedEvents,
+} from 'shared/types/Socket';
 import { RoomState } from 'types/RoomState';
-import { ServerEvents } from 'types/ServerEvents';
 import { validators } from 'validators';
 
-interface SocketEvents {
+type SocketEvents = {
   'room state changed': [RoomState];
-}
+};
 
 export const SocketContext = createContext<{
   name: string;
@@ -83,11 +89,11 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
 }
 
 function useSocket() {
-  const [socket, setSocket] = useState<SocketIOClient.Socket>();
+  const [socket, setSocket] = useState<ClientSocket<ServerEvents>>();
 
   useEffect(() => {
     const sessionId = localStorage.getItem(storageIdKey) ?? '';
-    const socket = io({
+    const socket = io(`localhost:${serverPort}`, {
       transports: ['websocket'],
       query: { sessionId },
     });
@@ -102,10 +108,10 @@ function useSocket() {
   return socket;
 }
 
-function useSocketListener<EventName extends keyof ServerEvents>(
-  socket: SocketIOClient.Socket | undefined,
+function useSocketListener<EventName extends keyof EmittedEvents<ServerEvents>>(
+  socket: ClientSocket<ServerEvents> | undefined,
   name: EventName,
-  listener: (value: ServerEvents[EventName]) => void,
+  listener: (...args: EmittedEvents<ServerEvents>[EventName]) => void,
   deps: DependencyList = []
 ) {
   useEffect(() => {
@@ -121,11 +127,15 @@ function useSocketListener<EventName extends keyof ServerEvents>(
   }, [socket, ...deps]);
 }
 
-function useSocketEmitter(
-  socket: SocketIOClient.Socket | undefined,
-  name: string
+function useSocketEmitter<EventName extends keyof ReceivedEvents<ServerEvents>>(
+  socket: ClientSocket<ServerEvents> | undefined,
+  name: EventName
 ) {
-  return useCallback((...args) => socket?.emit(name, ...args), [socket]);
+  return useCallback(
+    (...args: ReceivedEvents<ServerEvents>[EventName]) =>
+      socket?.emit(name, ...args),
+    [socket]
+  );
 }
 
 function useEventListenerSetter<EventName extends keyof SocketEvents>(

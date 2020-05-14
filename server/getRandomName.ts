@@ -1,8 +1,8 @@
-const axios = require('axios');
+import axios from 'axios';
 
 let anonymousCount = 0;
 
-exports.getRandomName = async function getRandomName() {
+export async function getRandomName() {
   try {
     const response = await axios.get('http://names.drycodes.com/1', {
       params: {
@@ -15,10 +15,10 @@ exports.getRandomName = async function getRandomName() {
       throw Object.assign(new Error('Could not get the name'), { response });
     }
 
-    return response.data;
+    return response.data as string;
   } catch (error) {
     console.error(error);
     anonymousCount += 1;
     return `Anonymous ${anonymousCount}`;
   }
-};
+}

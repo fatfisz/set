@@ -1,9 +1,14 @@
 import Ajv, { ErrorObject } from 'ajv';
-import { ServerEvents } from 'types/ServerEvents';
+
+import { EmittedEvents } from 'shared/types/Socket';
+import { ServerEvents } from 'shared/types/ServerEvents';
 
 const ajv = new Ajv();
 
-export const validators: Record<keyof ServerEvents, (value: any) => void> = {
+export const validators: Record<
+  keyof EmittedEvents<ServerEvents>,
+  (value: any) => void
+> = {
   'room state changed': getValidator({
     type: 'object',
     properties: {
