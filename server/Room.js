@@ -26,7 +26,13 @@ exports.Room = class Room {
     }
 
     this.players.increaseScore(sessionId);
-    this.#clearNextCardRequests();
+
+    if (this.#options.autoAddCard) {
+      this.table.addUntilHasSet();
+    } else {
+      this.#clearNextCardRequests();
+    }
+
     return true;
   }
 

@@ -76,6 +76,35 @@ exports.Table = class Table {
     this.#fill();
     return true;
   }
+
+  addUntilHasSet() {
+    while (this.getRemainingCardCount() > 0 && !this.#hasSet()) {
+      this.#addNextCard();
+    }
+  }
+
+  #hasSet() {
+    const nonEmptyCards = this.#tableCards.filter((card) => card !== emptyCard);
+    for (
+      let firstIndex = 0;
+      firstIndex < nonEmptyCards.length;
+      firstIndex += 1
+    ) {
+      for (
+        let secondIndex = firstIndex + 1;
+        secondIndex < nonEmptyCards.length;
+        secondIndex += 1
+      ) {
+        const first = nonEmptyCards[firstIndex];
+        const second = nonEmptyCards[secondIndex];
+        const third = getCardThatCompletesSet([first, second]);
+        if (nonEmptyCards.includes(third)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 };
 
 function getShuffledCards() {
@@ -105,11 +134,11 @@ function getLastNonEmptyIndex(cards) {
 
 function checkIfMakeSet(cards) {
   for (let propertyIndex = 0; propertyIndex < 4; propertyIndex += 1) {
-    const differentPropertiesCount = new Set(
+    const values = new Set(
       cards.map((card) => getBase3Digit(card, propertyIndex))
-    ).size;
+    );
 
-    if (![1, 3].includes(differentPropertiesCount)) {
+    if (![1, 3].includes(values.size)) {
       return false;
     }
   }
@@ -119,4 +148,22 @@ function checkIfMakeSet(cards) {
 
 function getBase3Digit(number, digit) {
   return Math.floor((number % 3 ** (digit + 1)) / 3 ** digit);
+}
+
+function getCardThatCompletesSet(cards) {
+  const digits = [];
+
+  for (let propertyIndex = 0; propertyIndex < 4; propertyIndex += 1) {
+    const values = new Set(
+      cards.map((card) => getBase3Digit(card, propertyIndex))
+    );
+
+    if (values.size === 1) {
+      digits.push([...values][0]);
+    } else {
+      digits.push([...values].reduce((sum, number) => sum - number, 3));
+    }
+  }
+
+  return digits.reduceRight((number, digit) => number * 3 + digit);
 }
