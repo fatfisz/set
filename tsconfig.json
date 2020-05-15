@@ -2,7 +2,7 @@
   "compilerOptions": {
     "allowJs": true,
     "alwaysStrict": true,
-    "baseUrl": "src",
+    "baseUrl": "client",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
@@ -23,5 +23,5 @@
     "target": "esnext"
   },
   "exclude": ["node_modules"],
-  "include": ["*.d.ts", "src/**/*.tsx", "../shared/**/*.tsx"]
+  "include": ["*.d.ts", "client/**/*.tsx", "../shared/**/*.tsx"]
 }
