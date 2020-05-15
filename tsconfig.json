@@ -23,5 +23,10 @@
     "target": "esnext"
   },
   "exclude": ["node_modules"],
-  "include": ["*.d.ts", "client/**/*.tsx", "../shared/**/*.tsx"]
+  "include": [
+    "*.d.ts",
+    "client/**/*.tsx",
+    "pages/**/*.tsx",
+    "../shared/**/*.tsx"
+  ]
 }
