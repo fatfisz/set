@@ -3,9 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "react",
-    "module": "commonjs",
-    "noEmit": false,
-    "outDir": "../dist"
+    "module": "commonjs"
   },
-  "include": ["../*.d.ts", "**/*.ts"]
+  "include": ["../*.d.ts", "**/*.ts", "../shared/**/*.tsx"]
 }

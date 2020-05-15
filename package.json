@@ -7,6 +7,7 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "@rollup/plugin-typescript": "^4.1.1",
     "@types/classnames": "^2.2.10",
     "@types/node": "13",
     "@types/react": "^16.9.35",
@@ -27,10 +28,13 @@
     "react-dom": "^16.13.1",
     "react-query": "^1.4.4",
     "rimraf": "^3.0.2",
+    "rollup": "^2.10.0",
+    "rollup-plugin-auto-external": "^2.0.0",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
     "ts-node": "^8.10.1",
     "tsconfig-paths": "^3.9.0",
+    "tslib": "^2.0.0",
     "typescript": "^3.9.2"
   },
   "scripts": {
@@ -38,10 +42,10 @@
     "dev:server": "ts-node -r tsconfig-paths/register -P server/tsconfig.json server/init.ts",
     "dev": "concurrently -k -n client,server -c green,blue \"yarn dev:client\" \"yarn dev:server\"",
     "build:client": "next build",
-    "build:server": "rimraf dist && yarn tsc --project server/tsconfig.json",
+    "build:server": "rimraf dist && yarn rollup -c",
     "build": "yarn build:client && yarn build:server",
     "start:client": "next start",
-    "start:server": "next start",
+    "start:server": "node dist/server.js",
     "start": "concurrently -k -n client,server -c green,blue \"yarn start:client\" \"yarn start:server\"",
     "types": "yarn tsc && yarn tsc --project server/tsconfig.json"
   }
