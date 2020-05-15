@@ -3,7 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "react",
-    "module": "commonjs"
+    "module": "commonjs",
+    "target": "es2019"
   },
   "include": ["../*.d.ts", "**/*.ts", "../shared/**/*.tsx"]
 }
