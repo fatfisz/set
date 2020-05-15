@@ -1,12 +1,9 @@
-import { getPseudoUniqueId } from 'getPseudoUniqueId';
-import { getRandomName } from 'getRandomName';
 import { Room } from 'Room';
 import { Session } from 'Session';
 import { ServerEvents } from 'shared/types/ServerEvents';
 import { ServerSocket } from 'shared/types/Socket';
 
 export class State {
-  private names = new Map<string, string>();
   // Should probably be a map of rooms
   private rooms: Room[] = [new Room()];
   private sessions = new Map<string, Session>();
@@ -16,39 +13,39 @@ export class State {
   }
 
   async addSocket(socket: ServerSocket<ServerEvents>) {
-    const sessionId = this.ensureSession(socket);
-    console.log(`[${sessionId}] Joined (${this.getActiveUserCount()} total)`);
+    const session = this.ensureSession(socket);
+    if (!session) {
+      return;
+    }
+
+    session.log(`Joined (${this.getActiveUserCount()} total)`);
 
     socket.on('disconnect', () => {
-      this.getSession(sessionId)?.disconnectSocket();
-      console.log(`[${sessionId}] Left (${this.getActiveUserCount()} total)`);
+      session.disconnectSocket();
+      session.log(`Left (${this.getActiveUserCount()} total)`);
     });
 
-    this.ensureName(sessionId);
-
-    const confirmed = await this.confirmSession(sessionId);
+    const confirmed = await this.confirmSession(session);
     if (!confirmed) {
       return;
     }
 
-    console.log(`[${sessionId}] Confirmed`);
-    this.setUpEvents(sessionId);
+    session.log('Confirmed');
+    this.setUpEvents(session);
 
     // Temporarily join the only existing room
-    this.joinRoom(sessionId, this.rooms[0]);
+    this.joinRoom(session, this.rooms[0]);
   }
 
-  private confirmSession(sessionId: string): Promise<boolean> {
+  private confirmSession(session: Session): Promise<boolean> {
     return new Promise((resolve) => {
-      const socket = this.getSocket(sessionId);
-      socket?.emit('session id granted', sessionId);
+      const { socket } = session;
+      socket?.emit('session estabilished', session.getState());
       socket?.on('session id received', async (clientSessionId) => {
-        if (clientSessionId === sessionId) {
+        if (clientSessionId === session.id) {
           resolve(true);
         } else {
-          console.error(
-            `[${sessionId}] Confirmation failure: received ${clientSessionId}`
-          );
+          session.log(`Confirmation failure: received ${clientSessionId}`);
           socket?.disconnect();
           resolve(false);
         }
@@ -56,69 +53,71 @@ export class State {
     });
   }
 
-  private setUpEvents(sessionId: string) {
-    const socket = this.getSocket(sessionId);
+  private setUpEvents(session: Session) {
+    const { socket } = session;
 
     socket?.on('name set', (name) => {
-      this.names.set(sessionId, name);
-      this.emitRoomStateChanged(sessionId, true);
+      session.setName(name);
+      this.emitRoomStateChanged(session, true);
     });
   }
 
-  private joinRoom(sessionId: string, room: Room) {
-    const socket = this.getSocket(sessionId);
+  private joinRoom(session: Session, room: Room) {
+    const { socket } = session;
 
-    this.getSession(sessionId)?.joinRoom(room);
-    this.emitRoomStateChanged(sessionId, true);
+    session.joinRoom(room);
+    this.emitRoomStateChanged(session, true);
 
     socket?.on('add next card', () => {
-      const room = this.getRoom(sessionId);
+      const { room } = session;
       if (!room) {
         return;
       }
 
-      room.requestNextCard(sessionId);
-      this.emitRoomStateChanged(sessionId, true);
+      room.requestNextCard(session);
+      this.emitRoomStateChanged(session, true);
     });
 
     socket?.on('room joined', () => {
-      this.emitRoomStateChanged(sessionId);
+      this.emitRoomStateChanged(session);
     });
 
     socket?.on('set selected', (cards) => {
-      const room = this.getRoom(sessionId);
+      const { room } = session;
       if (!room) {
         return;
       }
 
-      if (room.trySelectSet(sessionId, cards)) {
-        this.emitRoomStateChanged(sessionId, true);
+      if (room.trySelectSet(session, cards)) {
+        this.emitRoomStateChanged(session, true);
       }
     });
 
     socket?.on('disconnect', () => {
-      this.getSession(sessionId)?.leaveRoom();
+      const { room } = session;
+      session.leaveRoom();
+      this.emitRoomStateChanged(session, true, room);
     });
   }
 
-  private emitRoomStateChanged(sessionId: string, everyone = false) {
-    const room = this.getRoom(sessionId);
+  private emitRoomStateChanged(
+    session: Session,
+    everyone = false,
+    room = session.room
+  ) {
     if (!room) {
       return;
     }
 
-    const socket = this.getSocket(sessionId);
-    const roomState = room.getState(this.names);
+    const { socket } = session;
+    const roomState = room.getState();
 
     socket?.emit('room state changed', roomState);
 
     if (everyone) {
-      room?.forEachParticipant((participantSessionId) => {
-        if (participantSessionId !== sessionId) {
-          this.getSession(participantSessionId)?.socket?.emit(
-            'room state changed',
-            roomState
-          );
+      room?.forEachParticipant((participantSession) => {
+        if (participantSession !== session) {
+          participantSession.socket?.emit('room state changed', roomState);
         }
       });
     }
@@ -126,31 +125,19 @@ export class State {
 
   private ensureSession(socket: ServerSocket<ServerEvents>) {
     const { sessionId } = socket.handshake.query;
-    if (this.sessions.has(sessionId)) {
-      this.getSession(sessionId)?.setSocket(socket);
-      return sessionId as string;
+    const session = this.sessions.get(sessionId);
+
+    if (session) {
+      if (session.socket) {
+        session.log('Tried to open another window');
+        return;
+      }
+      session.setSocket(socket);
+      return session;
     } else {
-      const sessionId = getPseudoUniqueId();
-      this.sessions.set(sessionId, new Session(sessionId, socket));
-      return sessionId;
+      const session = new Session(socket);
+      this.sessions.set(session.id, session);
+      return session;
     }
-  }
-
-  private ensureName(sessionId: string) {
-    if (!this.names.has(sessionId)) {
-      this.names.set(sessionId, getRandomName());
-    }
-  }
-
-  private getRoom(sessionId: string) {
-    return this.getSession(sessionId)?.room;
-  }
-
-  private getSocket(sessionId: string) {
-    return this.getSession(sessionId)?.socket;
-  }
-
-  private getSession(sessionId: string) {
-    return this.sessions.get(sessionId);
   }
 }

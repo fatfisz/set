@@ -1,45 +1,44 @@
 import { Players } from 'Players';
+import { Session } from 'Session';
 import { Table } from 'Table';
 
 export class Room {
   private options = {
     autoAddCard: true,
   };
-  private nextCardRequests = new Set<string>();
+  private nextCardRequests = new Set<Session>();
   private players = new Players();
   private table = new Table();
 
-  getState(names: Map<string, string>) {
+  getState() {
     return {
       cards: this.table.getCards(),
-      names: Object.fromEntries(names.entries()),
-      nextCardRequests: [...this.nextCardRequests],
       options: this.options,
       remainingCardCount: this.table.getRemainingCardCount(),
-      scores: this.players.getScores(names),
+      scores: this.players.getScores(),
     };
   }
 
-  addPlayer(sessionId: string) {
-    this.players.add(sessionId);
-    console.log(`[${sessionId}] Joined the room`);
+  addPlayer(session: Session) {
+    this.players.add(session);
+    session.log('Joined the room');
   }
 
-  removePlayer(sessionId: string) {
-    console.log(`[${sessionId}] Left the room`);
-    this.players.delete(sessionId);
+  removePlayer(session: Session) {
+    session.log('Left the room');
+    this.players.delete(session);
   }
 
-  forEachParticipant(callback: (participantSessionId: string) => void) {
+  forEachParticipant(callback: (participantSession: Session) => void) {
     this.players.forEach(callback);
   }
 
-  trySelectSet(sessionId: string, cards: number[]) {
+  trySelectSet(session: Session, cards: number[]) {
     if (!this.table.popSet(cards)) {
       return false;
     }
 
-    this.players.increaseScore(sessionId);
+    this.players.increaseScore(session);
 
     if (this.options.autoAddCard) {
       this.table.addUntilHasSet();
@@ -50,13 +49,13 @@ export class Room {
     return true;
   }
 
-  requestNextCard(sessionId: string) {
+  requestNextCard(session: Session) {
     if (this.options.autoAddCard) {
       return;
     }
 
-    if (this.players.has(sessionId)) {
-      this.nextCardRequests.add(sessionId);
+    if (this.players.has(session)) {
+      this.nextCardRequests.add(session);
 
       if (this.nextCardRequests.size === this.players.getCount()) {
         this.table.tryAddNextCard();

@@ -18,14 +18,6 @@ export const validators: Record<
           type: 'number',
         },
       },
-      names: {
-        type: 'object',
-        patternProperties: {
-          '': {
-            type: 'string',
-          },
-        },
-      },
       options: {
         type: 'object',
         properties: {
@@ -57,10 +49,19 @@ export const validators: Record<
         },
       },
     },
-    required: ['cards', 'names', 'remainingCardCount', 'scores'],
+    required: ['cards', 'remainingCardCount', 'scores'],
   }),
-  'session id granted': getValidator({
-    type: 'string',
+  'session estabilished': getValidator({
+    type: 'object',
+    properties: {
+      id: {
+        type: 'string',
+      },
+      name: {
+        type: 'string',
+      },
+    },
+    required: ['id', 'name'],
   }),
 };
 

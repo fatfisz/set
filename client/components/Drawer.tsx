@@ -18,9 +18,7 @@ export function Drawer({
     score: number;
   }[];
 }) {
-  const { sessionId: currentSessionId, addNextCard } = useContext(
-    SocketContext
-  );
+  const { currentSessionId, addNextCard } = useContext(SocketContext);
   return (
     <>
       <div className="drawer">

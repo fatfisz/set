@@ -27,7 +27,7 @@ type SocketEvents = {
 
 export const SocketContext = createContext<{
   name: string;
-  sessionId: string;
+  currentSessionId: string;
   addNextCard(): void;
   joinRoom(): void;
   selectSet(cards: Readonly<number[]>): void;
@@ -35,7 +35,7 @@ export const SocketContext = createContext<{
   onRoomStateChanged(listener: (roomState: RoomState) => void): () => void;
 }>({
   name: '',
-  sessionId: '',
+  currentSessionId: '',
   addNextCard() {},
   joinRoom() {},
   selectSet() {},
@@ -46,33 +46,34 @@ export const SocketContext = createContext<{
 });
 
 const storageIdKey = 'sessionId';
+const initialSession = {
+  id: '',
+  name: '',
+};
 
 export function SocketContextProvider({ children }: { children: ReactNode }) {
   const socket = useSocket();
   const eventEmitter = useMemo(() => new EventEmitter<SocketEvents>(), []);
-  const [name, setName] = useState('');
-  const [sessionId, setSessionId] = useState('');
+  const [session, setSession] = useState(initialSession);
 
-  useSocketListener(socket, 'session id granted', (sessionId) => {
-    localStorage.setItem(storageIdKey, sessionId);
-    setSessionId(sessionId);
-    socket?.emit('session id received', sessionId);
+  useSocketListener(socket, 'session estabilished', (session) => {
+    localStorage.setItem(storageIdKey, session.id);
+    setSession(session);
+    socket?.emit('session id received', session.id);
   });
 
   useSocketListener(
     socket,
     'room state changed',
-    (serverRoomState) => {
-      const { names, ...roomState } = serverRoomState;
-      setName(names[sessionId]);
+    (roomState) => {
       eventEmitter.emit('room state changed', roomState);
     },
-    [sessionId]
+    [session.id]
   );
 
   const value: ContextType<typeof SocketContext> = {
     name,
-    sessionId,
+    currentSessionId: session.id,
     addNextCard: useSocketEmitter(socket, 'add next card'),
     joinRoom: useSocketEmitter(socket, 'room joined'),
     selectSet: useSocketEmitter(socket, 'set selected'),

@@ -3,7 +3,6 @@ export interface ServerEvents {
     'room state changed': [
       {
         cards: number[];
-        names: Record<string, string>;
         options: {
           autoAddCard: boolean;
         };
@@ -15,7 +14,12 @@ export interface ServerEvents {
         }[];
       }
     ];
-    'session id granted': [string];
+    'session estabilished': [
+      {
+        id: string;
+        name: string;
+      }
+    ];
   };
   received: {
     'add next card': [];
