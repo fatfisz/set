@@ -36,6 +36,10 @@ export class Players {
     this.scores.delete(sessionId);
   }
 
+  forEach(callback: (sessionId: string) => void) {
+    this.sessionIds.forEach(callback);
+  }
+
   increaseScore(sessionId: string) {
     if (!this.has(sessionId)) {
       return;

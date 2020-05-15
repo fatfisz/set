@@ -53,7 +53,7 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
   const [name, setName] = useState('');
   const [sessionId, setSessionId] = useState('');
 
-  useSocketListener(socket, 'session id generated', (sessionId) => {
+  useSocketListener(socket, 'session id granted', (sessionId) => {
     localStorage.setItem(storageIdKey, sessionId);
     setSessionId(sessionId);
     socket?.emit('session id received', sessionId);
@@ -116,6 +116,9 @@ function useSocketListener<EventName extends keyof EmittedEvents<ServerEvents>>(
 ) {
   useEffect(() => {
     function listenerWithValidator(value: any) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`[${name}]`, value);
+      }
       validators[name](value);
       listener(value);
     }

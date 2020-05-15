@@ -24,14 +24,12 @@ export interface ServerSocket<Events extends ServerEvents> {
     name: EventName,
     listener: (...args: ReceivedEvents<Events>[EventName]) => void
   ): void;
+  on(name: 'disconnect', listener: () => void): void;
 
   off<EventName extends keyof ReceivedEvents<Events>>(
     name: EventName,
     listener: (...args: ReceivedEvents<Events>[EventName]) => void
   ): void;
-
-  on(name: 'disconnect', listener: () => void): void;
-
   off(name: 'disconnect', listener: () => void): void;
 }
 

@@ -5,9 +5,9 @@ export class Room {
   private options = {
     autoAddCard: true,
   };
-  players = new Players();
-  table = new Table();
   private nextCardRequests = new Set<string>();
+  private players = new Players();
+  private table = new Table();
 
   getState(names: Map<string, string>) {
     return {
@@ -18,6 +18,20 @@ export class Room {
       remainingCardCount: this.table.getRemainingCardCount(),
       scores: this.players.getScores(names),
     };
+  }
+
+  addPlayer(sessionId: string) {
+    this.players.add(sessionId);
+    console.log(`[${sessionId}] Joined the room`);
+  }
+
+  removePlayer(sessionId: string) {
+    console.log(`[${sessionId}] Left the room`);
+    this.players.delete(sessionId);
+  }
+
+  forEachParticipant(callback: (participantSessionId: string) => void) {
+    this.players.forEach(callback);
   }
 
   trySelectSet(sessionId: string, cards: number[]) {

@@ -59,7 +59,7 @@ export const validators: Record<
     },
     required: ['cards', 'names', 'remainingCardCount', 'scores'],
   }),
-  'session id generated': getValidator({
+  'session id granted': getValidator({
     type: 'string',
   }),
 };

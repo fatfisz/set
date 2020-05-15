@@ -15,7 +15,7 @@ export interface ServerEvents {
         }[];
       }
     ];
-    'session id generated': [string];
+    'session id granted': [string];
   };
   received: {
     'add next card': [];
