@@ -6,7 +6,7 @@ import { SocketContext } from 'components/SocketContext';
 import { Table } from 'components/Table';
 import { RoomState } from 'types/RoomState';
 
-export default function Index() {
+export default function Room() {
   const { joinRoom, onRoomStateChanged } = useContext(SocketContext);
   const [roomState, setRoomState] = useState<RoomState | undefined>();
 
