@@ -39,7 +39,7 @@
   },
   "scripts": {
     "dev:client": "next",
-    "dev:server": "ts-node -r tsconfig-paths/register -P server/tsconfig.json server/init.ts",
+    "dev:server": "nodemon",
     "dev": "concurrently -k -n client,server -c green,blue \"yarn dev:client\" \"yarn dev:server\"",
     "build:client": "next build",
     "build:server": "rimraf dist && yarn rollup -c",
