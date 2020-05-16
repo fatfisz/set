@@ -37,7 +37,7 @@ export class State {
     return new Promise((resolve) => {
       const { socket } = session;
       socket?.emit('session estabilished', session.getState());
-      socket?.on('session id received', async (clientSessionId) => {
+      socket?.on('confirm session', async (clientSessionId) => {
         if (clientSessionId === session.id) {
           resolve(true);
         } else {
@@ -52,7 +52,7 @@ export class State {
   private setUpEvents(session: Session) {
     const { socket } = session;
 
-    socket?.on('name set', (name) => {
+    socket?.on('set name', (name) => {
       session.setName(name);
       this.emitRoomStateChanged(session, true);
     });
@@ -74,11 +74,11 @@ export class State {
       this.emitRoomStateChanged(session, true);
     });
 
-    socket?.on('room joined', () => {
+    socket?.on('join room', () => {
       this.emitRoomStateChanged(session);
     });
 
-    socket?.on('set selected', (cards) => {
+    socket?.on('select set', (cards) => {
       const { room } = session;
       if (!room) {
         return;

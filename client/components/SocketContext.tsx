@@ -2,12 +2,12 @@ import EventEmitter, { ListenerFn } from 'eventemitter3';
 import {
   ContextType,
   createContext,
+  DependencyList,
   ReactNode,
+  useCallback,
   useEffect,
   useMemo,
   useState,
-  useCallback,
-  DependencyList,
 } from 'react';
 import io from 'socket.io-client';
 
@@ -59,7 +59,7 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
   useSocketListener(socket, 'session estabilished', (session) => {
     localStorage.setItem(storageIdKey, session.id);
     setSession(session);
-    socket?.emit('session id received', session.id);
+    socket?.emit('confirm session', session.id);
   });
 
   useSocketListener(
@@ -75,9 +75,9 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
     name,
     currentSessionId: session.id,
     addNextCard: useSocketEmitter(socket, 'add next card'),
-    joinRoom: useSocketEmitter(socket, 'room joined'),
-    selectSet: useSocketEmitter(socket, 'set selected'),
-    setName: useSocketEmitter(socket, 'name set'),
+    joinRoom: useSocketEmitter(socket, 'join room'),
+    selectSet: useSocketEmitter(socket, 'select set'),
+    setName: useSocketEmitter(socket, 'set name'),
     onRoomStateChanged: useEventListenerSetter(
       eventEmitter,
       'room state changed'

@@ -23,9 +23,9 @@ export interface ServerEvents {
   };
   received: {
     'add next card': [];
-    'room joined': [];
-    'name set': [string];
-    'set selected': [number[]];
-    'session id received': [string];
+    'confirm session': [string];
+    'join room': [];
+    'select set': [number[]];
+    'set name': [string];
   };
 }
