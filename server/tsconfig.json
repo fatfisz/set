@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "react",
+    "lib": ["es2019"],
     "module": "commonjs",
     "target": "es2019"
   },
