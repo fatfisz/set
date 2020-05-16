@@ -191,7 +191,7 @@ function withSocketListenerRemoval(
   try {
     socket.on = (name: any, listener: (...args: any[]) => void) => {
       registeredListeners.push([name, listener]);
-      originalOn(name, listener);
+      originalOn.call(socket, name, listener);
     };
     callback(socket);
   } finally {
