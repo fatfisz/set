@@ -1,25 +1,10 @@
+import { RoomState } from 'shared/types/RoomState';
+import { SessionState } from 'shared/types/SessionState';
+
 export interface ServerEvents {
   emitted: {
-    'room state changed': [
-      {
-        cards: number[];
-        options: {
-          autoAddCard: boolean;
-        };
-        remainingCardCount: number;
-        scores: {
-          sessionId: string;
-          name: string;
-          score: number;
-        }[];
-      }
-    ];
-    'session estabilished': [
-      {
-        id: string;
-        name: string;
-      }
-    ];
+    'room state changed': [RoomState];
+    'session estabilished': [SessionState];
   };
   received: {
     'add next card': [];

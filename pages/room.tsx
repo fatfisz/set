@@ -4,20 +4,13 @@ import { Drawer } from 'components/Drawer';
 import { SelectedCardsProvider } from 'components/SelectedCardsContext';
 import { SocketContext } from 'components/SocketContext';
 import { Table } from 'components/Table';
-import { RoomState } from 'types/RoomState';
 
 export default function Room() {
-  const { joinRoom, onRoomStateChanged } = useContext(SocketContext);
-  const [roomState, setRoomState] = useState<RoomState | undefined>();
+  const { joinRoom, roomState } = useContext(SocketContext);
 
   useEffect(() => {
     joinRoom();
   }, [joinRoom]);
-
-  useEffect(() => {
-    const removeListener = onRoomStateChanged(setRoomState);
-    return () => removeListener();
-  }, [onRoomStateChanged]);
 
   if (!roomState) {
     return null;

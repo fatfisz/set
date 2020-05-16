@@ -1,4 +1,3 @@
-import EventEmitter, { ListenerFn } from 'eventemitter3';
 import {
   ContextType,
   createContext,
@@ -6,43 +5,36 @@ import {
   ReactNode,
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import io from 'socket.io-client';
 
 import { serverPort } from 'shared/serverPort';
+import { RoomState } from 'shared/types/RoomState';
 import { ServerEvents } from 'shared/types/ServerEvents';
 import {
   ClientSocket,
   EmittedEvents,
   ReceivedEvents,
 } from 'shared/types/Socket';
-import { RoomState } from 'types/RoomState';
 import { validators } from 'validators';
-
-type SocketEvents = {
-  'room state changed': [RoomState];
-};
 
 export const SocketContext = createContext<{
   name: string;
   currentSessionId: string;
+  roomState: RoomState | undefined;
   addNextCard(): void;
   joinRoom(): void;
   selectSet(cards: Readonly<number[]>): void;
   setName(name: string): void;
-  onRoomStateChanged(listener: (roomState: RoomState) => void): () => void;
 }>({
   name: '',
   currentSessionId: '',
+  roomState: undefined,
   addNextCard() {},
   joinRoom() {},
   selectSet() {},
   setName() {},
-  onRoomStateChanged() {
-    return () => {};
-  },
 });
 
 const storageIdKey = 'sessionId';
@@ -53,8 +45,8 @@ const initialSession = {
 
 export function SocketContextProvider({ children }: { children: ReactNode }) {
   const socket = useSocket();
-  const eventEmitter = useMemo(() => new EventEmitter<SocketEvents>(), []);
   const [session, setSession] = useState(initialSession);
+  const [roomState, setRoomState] = useState<RoomState | undefined>();
 
   useSocketListener(socket, 'session estabilished', (session) => {
     localStorage.setItem(storageIdKey, session.id);
@@ -62,26 +54,16 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
     socket?.emit('confirm session', session.id);
   });
 
-  useSocketListener(
-    socket,
-    'room state changed',
-    (roomState) => {
-      eventEmitter.emit('room state changed', roomState);
-    },
-    [session.id]
-  );
+  useSocketListener(socket, 'room state changed', setRoomState, [session.id]);
 
   const value: ContextType<typeof SocketContext> = {
-    name,
     currentSessionId: session.id,
+    name: session.name,
+    roomState,
     addNextCard: useSocketEmitter(socket, 'add next card'),
     joinRoom: useSocketEmitter(socket, 'join room'),
     selectSet: useSocketEmitter(socket, 'select set'),
     setName: useSocketEmitter(socket, 'set name'),
-    onRoomStateChanged: useEventListenerSetter(
-      eventEmitter,
-      'room state changed'
-    ),
   };
 
   return (
@@ -116,12 +98,14 @@ function useSocketListener<EventName extends keyof EmittedEvents<ServerEvents>>(
   deps: DependencyList = []
 ) {
   useEffect(() => {
-    function listenerWithValidator(value: any) {
+    function listenerWithValidator(
+      ...args: EmittedEvents<ServerEvents>[EventName]
+    ) {
       if (process.env.NODE_ENV !== 'production') {
-        console.log(`[${name}]`, value);
+        console.log(`[${name}]`, ...args);
       }
-      validators[name](value);
-      listener(value);
+      validators[name](...args);
+      listener(...args);
     }
 
     socket?.on(name, listenerWithValidator);
@@ -139,18 +123,5 @@ function useSocketEmitter<EventName extends keyof ReceivedEvents<ServerEvents>>(
     (...args: ReceivedEvents<ServerEvents>[EventName]) =>
       socket?.emit(name, ...args),
     [socket]
-  );
-}
-
-function useEventListenerSetter<EventName extends keyof SocketEvents>(
-  eventEmitter: EventEmitter<SocketEvents>,
-  name: EventName
-) {
-  return useCallback(
-    (listener: ListenerFn<SocketEvents[EventName]>) => {
-      eventEmitter.on(name, listener);
-      return () => eventEmitter.off(name, listener);
-    },
-    [eventEmitter, name]
   );
 }

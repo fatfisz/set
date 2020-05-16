@@ -7,7 +7,7 @@ const ajv = new Ajv();
 
 export const validators: Record<
   keyof EmittedEvents<ServerEvents>,
-  (value: any) => void
+  (...args: any[]) => void
 > = {
   'room state changed': getValidator({
     type: 'object',
@@ -65,12 +65,14 @@ export const validators: Record<
   }),
 };
 
-function getValidator(schema: any) {
-  const validate = ajv.compile(schema);
-  return (value: any) => {
-    if (!validate(value)) {
-      throwValidationError(validate.errors);
-    }
+function getValidator(...schemas: any[]) {
+  const validators = schemas.map((schema) => ajv.compile(schema));
+  return (...args: any[]) => {
+    args.forEach((value: any, index: number) => {
+      if (!validators[index](value)) {
+        throwValidationError(validators[index].errors);
+      }
+    });
   };
 }
 
