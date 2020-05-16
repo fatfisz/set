@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 
 import { Drawer } from 'components/Drawer';
@@ -6,11 +7,12 @@ import { SocketContext } from 'components/SocketContext';
 import { Table } from 'components/Table';
 
 export default function Room() {
+  const { id } = useRouter().query;
   const { joinRoom, roomState } = useContext(SocketContext);
 
   useEffect(() => {
-    joinRoom();
-  }, [joinRoom]);
+    joinRoom(typeof id === 'string' ? id : '');
+  }, [id, joinRoom]);
 
   if (!roomState) {
     return null;

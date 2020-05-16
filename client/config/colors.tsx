@@ -11,3 +11,5 @@ export const blue = '#2bb8e3';
 export const lightGrey = '#ccc';
 
 export const darkGrey = '#444';
+
+export const translucentBlack = '#000000a0';

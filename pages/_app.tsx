@@ -2,7 +2,7 @@ import { AppProps } from 'next/app';
 import Head from 'next/head';
 
 import { CardDefs } from 'components/CardDefs';
-import { SocketContextProvider } from 'components/SocketContext';
+import { SocketProvider } from 'components/SocketContext';
 import { Title } from 'components/Title';
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -19,9 +19,9 @@ export default function App({ Component, pageProps }: AppProps) {
 
       <CardDefs />
 
-      <SocketContextProvider>
+      <SocketProvider>
         <Component {...pageProps} />
-      </SocketContextProvider>
+      </SocketProvider>
 
       <style jsx global>{`
         * {
@@ -36,6 +36,10 @@ export default function App({ Component, pageProps }: AppProps) {
           background-size: cover;
           color: white;
           font-family: 'Lato', sans-serif;
+        }
+
+        a {
+          color: inherit;
         }
       `}</style>
     </>

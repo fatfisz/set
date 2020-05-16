@@ -4,9 +4,13 @@ import { ServerEvents } from 'shared/types/ServerEvents';
 import { ServerSocket } from 'shared/types/Socket';
 
 export class State {
-  // Should probably be a map of rooms
-  private rooms: Room[] = [new Room()];
+  private rooms = new Map<string, Room>();
   private sessions = new Map<string, Session>();
+
+  constructor() {
+    const room = new Room({ autoAddCard: true, name: 'Test room' });
+    this.rooms.set(room.id, room);
+  }
 
   async addSocket(socket: ServerSocket<ServerEvents>) {
     const session = this.ensureSession(socket);
@@ -28,9 +32,6 @@ export class State {
 
     session.log('Confirmed');
     this.setUpEvents(session);
-
-    // Temporarily join the only existing room
-    this.joinRoom(session, this.rooms[0]);
   }
 
   private confirmSession(session: Session): Promise<boolean> {
@@ -56,43 +57,64 @@ export class State {
       session.setName(name);
       this.emitRoomStateChanged(session, true);
     });
-  }
 
-  private joinRoom(session: Session, room: Room) {
-    const { socket } = session;
+    this.emitLobbyStateChanged(session);
 
-    session.joinRoom(room);
-    this.emitRoomStateChanged(session, true);
-
-    socket?.on('add next card', () => {
-      const { room } = session;
-      if (!room) {
-        return;
-      }
-
-      room.requestNextCard(session);
-      this.emitRoomStateChanged(session, true);
-    });
-
-    socket?.on('join room', () => {
-      this.emitRoomStateChanged(session);
-    });
-
-    socket?.on('select set', (cards) => {
-      const { room } = session;
-      if (!room) {
-        return;
-      }
-
-      if (room.trySelectSet(session, cards)) {
-        this.emitRoomStateChanged(session, true);
+    socket?.on('join room', (roomId) => {
+      const room = this.rooms.get(roomId);
+      if (room) {
+        this.joinRoom(session, room);
       }
     });
 
     socket?.on('disconnect', () => {
-      const { room } = session;
-      session.leaveRoom();
-      this.emitRoomStateChanged(session, true, room);
+      this.emitLobbyStateChanged(session);
+    });
+  }
+
+  private emitLobbyStateChanged(session: Session) {
+    const { socket } = session;
+    const lobbyState = this.getLobbyState();
+    socket?.emit('lobby state changed', lobbyState);
+    socket?.broadcast.emit('lobby state changed', lobbyState);
+  }
+
+  private joinRoom(session: Session, room: Room) {
+    if (session.room) {
+      return;
+    }
+
+    const removeListeners = withSocketListenerRemoval(session, (socket) => {
+      session.joinRoom(room);
+      this.emitRoomStateChanged(session, true);
+
+      socket.on('add next card', () => {
+        withRoom(session, (room) => {
+          room.requestNextCard(session);
+          this.emitRoomStateChanged(session, true);
+        });
+      });
+
+      socket.on('select set', (cards) => {
+        withRoom(session, (room) => {
+          if (room.trySelectSet(session, cards)) {
+            this.emitRoomStateChanged(session, true);
+          }
+        });
+      });
+
+      const leaveRoom = () => {
+        const { room } = session;
+        session.leaveRoom();
+        this.emitRoomStateChanged(session, true, room);
+      };
+
+      socket.on('leave room', () => {
+        leaveRoom();
+        removeListeners?.();
+      });
+
+      socket.on('disconnect', leaveRoom);
     });
   }
 
@@ -137,7 +159,48 @@ export class State {
     }
   }
 
+  private getLobbyState() {
+    return {
+      rooms: [...this.rooms.values()].map((room) => room.getLobbyState()),
+    };
+  }
+
   private getActiveUserCount() {
     return this.sessions.size;
   }
+}
+
+function withRoom(session: Session, callback: (room: Room) => void) {
+  const { room } = session;
+  if (room) {
+    callback(room);
+  }
+}
+
+function withSocketListenerRemoval(
+  session: Session,
+  callback: (socket: ServerSocket<ServerEvents>) => void
+) {
+  const { socket } = session;
+  if (!socket) {
+    return;
+  }
+
+  const originalOn = socket.on;
+  const registeredListeners: [any, (...args: any[]) => void][] = [];
+  try {
+    socket.on = (name: any, listener: (...args: any[]) => void) => {
+      registeredListeners.push([name, listener]);
+      originalOn(name, listener);
+    };
+    callback(socket);
+  } finally {
+    socket.on = originalOn;
+  }
+
+  return () => {
+    registeredListeners.forEach(([name, listener]) => {
+      socket.off(name, listener);
+    });
+  };
 }

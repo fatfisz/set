@@ -2,6 +2,7 @@ import Ajv, { ErrorObject } from 'ajv';
 
 import { EmittedEvents } from 'shared/types/Socket';
 import { ServerEvents } from 'shared/types/ServerEvents';
+import { array, boolean, number, object, string } from 'utils/ajvHelpers';
 
 const ajv = new Ajv();
 
@@ -9,60 +10,38 @@ export const validators: Record<
   keyof EmittedEvents<ServerEvents>,
   (...args: any[]) => void
 > = {
-  'room state changed': getValidator({
-    type: 'object',
-    properties: {
-      cards: {
-        type: 'array',
-        items: {
-          type: 'number',
-        },
-      },
-      options: {
-        type: 'object',
-        properties: {
-          autoAddCard: {
-            type: 'boolean',
-          },
-        },
-        required: ['autoAddCard'],
-      },
-      remainingCardCount: {
-        type: 'number',
-      },
-      scores: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            sessionId: {
-              type: 'string',
-            },
-            name: {
-              type: 'string',
-            },
-            score: {
-              type: 'number',
-            },
-          },
-          required: ['sessionId', 'name', 'score'],
-        },
-      },
-    },
-    required: ['cards', 'remainingCardCount', 'scores'],
-  }),
-  'session estabilished': getValidator({
-    type: 'object',
-    properties: {
-      id: {
-        type: 'string',
-      },
-      name: {
-        type: 'string',
-      },
-    },
-    required: ['id', 'name'],
-  }),
+  'lobby state changed': getValidator(
+    object({
+      rooms: array(
+        object({
+          id: string(),
+          name: string(),
+        })
+      ),
+    })
+  ),
+  'room state changed': getValidator(
+    object({
+      cards: array(number()),
+      options: object({
+        autoAddCard: boolean(),
+      }),
+      remainingCardCount: number(),
+      scores: array(
+        object({
+          sessionId: string(),
+          name: string(),
+          score: number(),
+        })
+      ),
+    })
+  ),
+  'session estabilished': getValidator(
+    object({
+      id: string(),
+      name: string(),
+    })
+  ),
 };
 
 function getValidator(...schemas: any[]) {

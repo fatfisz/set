@@ -1,14 +1,27 @@
+import { getPseudoUniqueId } from 'getPseudoUniqueId';
 import { Players } from 'Players';
 import { Session } from 'Session';
+import { RoomOptions } from 'shared/types/RoomOptions';
 import { Table } from 'Table';
 
 export class Room {
-  private options = {
-    autoAddCard: true,
-  };
+  readonly id: string;
+  readonly options: RoomOptions;
   private nextCardRequests = new Set<Session>();
   private players = new Players();
   private table = new Table();
+
+  constructor(options: RoomOptions) {
+    this.id = getPseudoUniqueId();
+    this.options = options;
+  }
+
+  getLobbyState() {
+    return {
+      id: this.id,
+      name: this.options.name,
+    };
+  }
 
   getState() {
     return {

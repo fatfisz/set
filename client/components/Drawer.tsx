@@ -2,6 +2,7 @@ import { useContext, ReactNode } from 'react';
 
 import { Nick } from 'components/Nick';
 import { SocketContext } from 'components/SocketContext';
+import { translucentBlack } from 'config/colors';
 
 export function Drawer({
   options,
@@ -50,7 +51,7 @@ export function Drawer({
       <style jsx>{`
         .drawer {
           aligin-items: start;
-          background: #000000a0;
+          background: ${translucentBlack};
           cursor: default;
           display: grid;
           gap: 16px;
