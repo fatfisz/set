@@ -8,11 +8,12 @@ import { Table } from 'components/Table';
 
 export default function Room() {
   const { id } = useRouter().query;
-  const { joinRoom, roomState } = useContext(SocketContext);
+  const { joinRoom, leaveRoom, roomState } = useContext(SocketContext);
 
   useEffect(() => {
     joinRoom(typeof id === 'string' ? id : '');
-  }, [id, joinRoom]);
+    return leaveRoom;
+  }, [id, joinRoom, leaveRoom]);
 
   if (!roomState) {
     return null;

@@ -61,8 +61,9 @@ export function useSocketEmitter<
   EventName extends keyof ReceivedEvents<ServerEvents>
 >(socket: ClientSocket<ServerEvents> | undefined, name: EventName) {
   return useCallback(
-    (...args: ReceivedEvents<ServerEvents>[EventName]) =>
-      socket?.emit(name, ...args),
+    (...args: ReceivedEvents<ServerEvents>[EventName]) => {
+      socket?.emit(name, ...args);
+    },
     [socket]
   );
 }

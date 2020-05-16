@@ -5,7 +5,7 @@ import { SocketContext } from 'components/SocketContext';
 import { translucentBlack } from 'config/colors';
 
 export default function Index() {
-  const { createRoom, lobbyState } = useContext(SocketContext);
+  const { lobbyState } = useContext(SocketContext);
 
   if (!lobbyState) {
     return null;
@@ -16,6 +16,11 @@ export default function Index() {
       <div className="spacing-wrapper">
         <div className="lobby">
           <h1>Set</h1>
+
+          <Link href="/room/create">
+            <a>Create room</a>
+          </Link>
+
           {lobbyState.rooms.map((room) => (
             <Link key={room.id} href="/room/[id]" as={`/room/${room.id}`}>
               <a>{room.name}</a>
@@ -43,8 +48,3 @@ export default function Index() {
     </>
   );
 }
-
-/**
- * - list the rooms
- * - add a room (name - automatic by default, options: { autoAddCard, password (optional) })
- */

@@ -1,5 +1,6 @@
 import { Room } from 'Room';
 import { Session } from 'Session';
+import { RoomOptions } from 'shared/types/RoomOptions';
 import { ServerEvents } from 'shared/types/ServerEvents';
 import { ServerSocket } from 'shared/types/Socket';
 
@@ -8,8 +9,7 @@ export class State {
   private sessions = new Map<string, Session>();
 
   constructor() {
-    const room = new Room({ autoAddCard: true, name: 'Test room' });
-    this.rooms.set(room.id, room);
+    this.createRoom({ autoAddCard: true, name: 'Test room' });
   }
 
   async addSocket(socket: ServerSocket<ServerEvents>) {
@@ -19,11 +19,6 @@ export class State {
     }
 
     session.log(`Joined (${this.getActiveUserCount()} total)`);
-
-    socket.on('disconnect', () => {
-      session.disconnectSocket();
-      session.log(`Left (${this.getActiveUserCount()} total)`);
-    });
 
     const confirmed = await this.confirmSession(session);
     if (!confirmed) {
@@ -58,7 +53,7 @@ export class State {
       this.emitRoomStateChanged(session, true);
     });
 
-    this.emitLobbyStateChanged(session);
+    this.emitLobbyStateChanged();
 
     socket?.on('join room', (roomId) => {
       const room = this.rooms.get(roomId);
@@ -67,16 +62,26 @@ export class State {
       }
     });
 
+    socket?.on('create room', (options) => {
+      if (session.room) {
+        return;
+      }
+      this.createRoom(options);
+      this.emitLobbyStateChanged();
+    });
+
     socket?.on('disconnect', () => {
-      this.emitLobbyStateChanged(session);
+      session.disconnectSocket();
+      this.emitLobbyStateChanged();
+      session.log(`Left (${this.getActiveUserCount()} total)`);
     });
   }
 
-  private emitLobbyStateChanged(session: Session) {
-    const { socket } = session;
+  private emitLobbyStateChanged() {
     const lobbyState = this.getLobbyState();
-    socket?.emit('lobby state changed', lobbyState);
-    socket?.broadcast.emit('lobby state changed', lobbyState);
+    this.sessions.forEach((session) => {
+      session.socket?.emit('lobby state changed', lobbyState);
+    });
   }
 
   private joinRoom(session: Session, room: Room) {
@@ -157,6 +162,11 @@ export class State {
       this.sessions.set(session.id, session);
       return session;
     }
+  }
+
+  private createRoom(options: RoomOptions) {
+    const room = new Room(options);
+    this.rooms.set(room.id, room);
   }
 
   private getLobbyState() {
