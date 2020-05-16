@@ -8,10 +8,6 @@ export class State {
   private rooms: Room[] = [new Room()];
   private sessions = new Map<string, Session>();
 
-  getActiveUserCount() {
-    return this.sessions.size;
-  }
-
   async addSocket(socket: ServerSocket<ServerEvents>) {
     const session = this.ensureSession(socket);
     if (!session) {
@@ -139,5 +135,9 @@ export class State {
       this.sessions.set(session.id, session);
       return session;
     }
+  }
+
+  private getActiveUserCount() {
+    return this.sessions.size;
   }
 }
