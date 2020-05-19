@@ -10,10 +10,12 @@ export class Session {
   room: Room | undefined = undefined;
   socket: ServerSocket<ServerEvents> | undefined;
 
-  constructor(socket: ServerSocket<ServerEvents>) {
+  constructor(socket?: ServerSocket<ServerEvents>) {
     this.id = getPseudoUniqueId();
     this.name = getRandomName();
-    this.setSocket(socket);
+    if (socket) {
+      this.setSocket(socket);
+    }
   }
 
   getState() {

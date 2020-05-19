@@ -11,8 +11,8 @@ export class Room {
   private players = new Players();
   private table = new Table();
 
-  constructor(options: RoomOptions) {
-    this.id = getPseudoUniqueId();
+  constructor(options: RoomOptions, id = getPseudoUniqueId()) {
+    this.id = id;
     this.options = options;
   }
 
