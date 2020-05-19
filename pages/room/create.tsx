@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useContext, useCallback, useMemo } from 'react';
 
 import { SocketContext } from 'components/SocketContext';
-import { translucentBlack } from 'config/colors';
+import { FloatingContent } from 'components/FloatingContent';
 
 interface Values {
   autoAddCard: boolean;
@@ -19,46 +19,27 @@ export default function RoomCreate() {
     router.push('/');
   }, []);
   return (
-    <>
-      <div className="spacing-wrapper">
-        <Formik<Values>
-          enableReinitialize
-          initialValues={initialValues}
-          onSubmit={submit}
-        >
-          <Form className="create-room-form">
-            <h1>Create room</h1>
-            <label>
-              Room name
-              <Field name="name" />
-            </label>
-            <label>
-              <Field type="checkbox" name="autoAddCard" />
-              Automatically add a card when there is no set on the table
-            </label>
+    <FloatingContent>
+      <Formik<Values>
+        enableReinitialize
+        initialValues={initialValues}
+        onSubmit={submit}
+      >
+        <Form>
+          <h1>Create room</h1>
+          <label>
+            Room name
+            <Field name="name" />
+          </label>
+          <label>
+            <Field type="checkbox" name="autoAddCard" />
+            Automatically add a card when there is no set on the table
+          </label>
 
-            <button type="submit">Create</button>
-          </Form>
-        </Formik>
-      </div>
-
-      <style jsx>{`
-        .spacing-wrapper {
-          align-items: center;
-          display: flex;
-          flex-direction: column;
-          padding: 64px 0;
-        }
-
-        .create-room-form {
-          background-color: ${translucentBlack};
-          border-radius: 32px;
-          padding: 32px;
-          min-height: 420px;
-          width: 500px;
-        }
-      `}</style>
-    </>
+          <button type="submit">Create</button>
+        </Form>
+      </Formik>
+    </FloatingContent>
   );
 }
 
