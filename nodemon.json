@@ -1,5 +1,8 @@
 {
   "watch": ["server", "shared"],
-  "exec": "ts-node -r tsconfig-paths/register -P server/tsconfig.json server/init.ts",
-  "ext": "*"
+  "exec": "node --unhandled-rejections=strict -r ts-node/register -r tsconfig-paths/register server/init.ts",
+  "ext": "*",
+  "env": {
+    "TS_NODE_PROJECT": "server/tsconfig.json"
+  }
 }
