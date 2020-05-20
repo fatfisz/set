@@ -1,3 +1,4 @@
+import { DatabaseSchema } from 'DatabaseSchema';
 import { getPseudoUniqueId } from 'getPseudoUniqueId';
 import { Players } from 'Players';
 import { Session } from 'Session';
@@ -8,12 +9,48 @@ export class Room {
   readonly id: string;
   readonly options: RoomOptions;
   private nextCardRequests = new Set<Session>();
-  private players = new Players();
-  private table = new Table();
+  private players: Players;
+  private table: Table;
 
-  constructor(options: RoomOptions, id = getPseudoUniqueId()) {
+  constructor(initialData: {
+    id?: never;
+    options: RoomOptions;
+    players?: never;
+    table?: never;
+  });
+  constructor(initialData: {
+    id: string;
+    options: RoomOptions;
+    players: Players;
+    table: Table;
+  });
+  constructor({
+    id = getPseudoUniqueId(),
+    options,
+    players = new Players(),
+    table = new Table(),
+  }: {
+    id?: string;
+    options: RoomOptions;
+    players?: Players;
+    table?: Table;
+  }) {
     this.id = id;
     this.options = options;
+    this.players = players;
+    this.table = table;
+  }
+
+  static deserialize(
+    { id, options, players, table }: DatabaseSchema['room'],
+    sessions: Map<string, Session>
+  ): Room {
+    return new Room({
+      id,
+      options,
+      players: Players.deserialize(players, sessions),
+      table: Table.deserialize(table),
+    });
   }
 
   getLobbyState() {

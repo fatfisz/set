@@ -1,3 +1,4 @@
+import { db } from 'Database';
 import { Room } from 'Room';
 import { Session } from 'Session';
 import { RoomOptions } from 'shared/types/RoomOptions';
@@ -10,6 +11,18 @@ export class State {
 
   constructor() {
     this.createRoom({ autoAddCard: true, name: 'Test room' });
+  }
+
+  async initFromDb() {
+    const rooms = await db.collection('room');
+    rooms.find().forEach((room) => {
+      this.rooms.set(room.id, Room.deserialize(room, this.sessions));
+    });
+
+    const sessions = await db.collection('session');
+    sessions.find().forEach((session) => {
+      this.sessions.set(session.id, Session.deserialize(session));
+    });
   }
 
   async addSocket(socket: ServerSocket<ServerEvents>) {
@@ -158,14 +171,14 @@ export class State {
       session.setSocket(socket);
       return session;
     } else {
-      const session = new Session(socket);
+      const session = new Session({ socket });
       this.sessions.set(session.id, session);
       return session;
     }
   }
 
   private createRoom(options: RoomOptions) {
-    const room = new Room(options);
+    const room = new Room({ options });
     this.rooms.set(room.id, room);
   }
 

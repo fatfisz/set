@@ -9,6 +9,7 @@ main();
 
 async function main() {
   const state = new State();
+  await state.initFromDb();
   const server = getServer();
   const io = SocketIO(server);
   io.on('connect', (socket: ServerSocket<ServerEvents>) => {

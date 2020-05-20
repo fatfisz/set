@@ -1,3 +1,4 @@
+import { DatabaseSchema } from 'DatabaseSchema';
 import { getPseudoUniqueId } from 'getPseudoUniqueId';
 import { getRandomName } from 'getRandomName';
 import { Room } from 'Room';
@@ -10,12 +11,30 @@ export class Session {
   room: Room | undefined = undefined;
   socket: ServerSocket<ServerEvents> | undefined;
 
-  constructor(socket?: ServerSocket<ServerEvents>) {
-    this.id = getPseudoUniqueId();
-    this.name = getRandomName();
+  constructor(initialData: {
+    id?: never;
+    name?: never;
+    socket: ServerSocket<ServerEvents>;
+  });
+  constructor(initialData: { id: string; name: string; socket?: never });
+  constructor({
+    id = getPseudoUniqueId(),
+    name = getRandomName(),
+    socket,
+  }: {
+    id?: string;
+    name?: string;
+    socket?: ServerSocket<ServerEvents>;
+  }) {
+    this.id = id;
+    this.name = name;
     if (socket) {
       this.setSocket(socket);
     }
+  }
+
+  static deserialize(data: DatabaseSchema['session']): Session {
+    return new Session(data);
   }
 
   getState() {

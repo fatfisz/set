@@ -1,8 +1,30 @@
+import { DatabaseSchema } from 'DatabaseSchema';
 import { Session } from 'Session';
+import { getOrThrow } from 'shared/getOrThrow';
 
 export class Players {
+  private scores: Map<Session, number>;
   private sessions = new Set<Session>();
-  private scores = new Map<Session, number>();
+
+  constructor();
+  constructor(initialData: { scores: Map<Session, number> });
+  constructor({ scores } = { scores: new Map<Session, number>() }) {
+    this.scores = scores;
+  }
+
+  static deserialize(
+    data: DatabaseSchema['room']['players'],
+    sessions: Map<string, Session>
+  ): Players {
+    return new Players({
+      scores: new Map(
+        Object.entries(data.scores).map(([sessionId, score]) => [
+          getOrThrow(sessions, sessionId),
+          score,
+        ])
+      ),
+    });
+  }
 
   getScores() {
     return [...this.sessions]

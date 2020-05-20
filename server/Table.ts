@@ -1,3 +1,5 @@
+import { DatabaseSchema } from 'DatabaseSchema';
+
 const maxTableCards = 12;
 const emptyCard = -1;
 
@@ -6,14 +8,34 @@ export class Table {
   private nextCardIndex: number;
   private tableCards: number[];
 
-  constructor() {
-    this.cards = getShuffledCards();
-    this.nextCardIndex = 0;
-    this.tableCards = Array.from(
-      { length: this.cards.length },
-      () => emptyCard
-    );
-    this.fill();
+  constructor();
+  constructor(initialData: {
+    cards: number[];
+    nextCardIndex: number;
+    tableCards: number[];
+  });
+  constructor(initialData?: {
+    cards: number[];
+    nextCardIndex: number;
+    tableCards: number[];
+  }) {
+    if (initialData) {
+      this.cards = initialData.cards;
+      this.nextCardIndex = initialData.nextCardIndex;
+      this.tableCards = initialData.tableCards;
+    } else {
+      this.cards = getShuffledCards();
+      this.nextCardIndex = 0;
+      this.tableCards = Array.from(
+        { length: this.cards.length },
+        () => emptyCard
+      );
+      this.fill();
+    }
+  }
+
+  static deserialize(data: DatabaseSchema['room']['table']): Table {
+    return new Table();
   }
 
   private fill() {

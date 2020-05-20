@@ -1,6 +1,7 @@
 import { MongoClient } from 'mongodb';
 
 import credentials from '../credentials.json';
+import { DatabaseSchema } from 'DatabaseSchema';
 
 const url = 'mongodb://localhost:27017';
 
@@ -18,8 +19,10 @@ class Database {
     return client.db(dbName);
   }
 
-  async collection(name: string) {
-    return (await this.db).collection(name);
+  async collection<CollectionName extends keyof DatabaseSchema>(
+    name: CollectionName
+  ) {
+    return (await this.db).collection<DatabaseSchema[CollectionName]>(name);
   }
 }
 
