@@ -1,9 +1,12 @@
+import { db } from 'Database';
 import { DatabaseSchema } from 'DatabaseSchema';
 import { getPseudoUniqueId } from 'getPseudoUniqueId';
 import { getRandomName } from 'getRandomName';
 import { Room } from 'Room';
 import { ServerEvents } from 'shared/types/ServerEvents';
 import { ServerSocket } from 'shared/types/Socket';
+
+const sessionCollection = db.collection('session');
 
 export class Session {
   readonly id: string;
@@ -18,7 +21,7 @@ export class Session {
   });
   constructor(initialData: { id: string; name: string; socket?: never });
   constructor({
-    id = getPseudoUniqueId(),
+    id,
     name = getRandomName(),
     socket,
   }: {
@@ -26,11 +29,26 @@ export class Session {
     name?: string;
     socket?: ServerSocket<ServerEvents>;
   }) {
-    this.id = id;
+    this.id = id ?? getPseudoUniqueId();
     this.name = name;
     if (socket) {
       this.setSocket(socket);
     }
+
+    if (!id) {
+      this.insert();
+    }
+  }
+
+  private async insert() {
+    (await sessionCollection).insertOne(this.serialize());
+  }
+
+  serialize(): DatabaseSchema['session'] {
+    return {
+      id: this.id,
+      name: this.name,
+    };
   }
 
   static deserialize(data: DatabaseSchema['session']): Session {

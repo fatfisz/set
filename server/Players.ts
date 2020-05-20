@@ -12,6 +12,14 @@ export class Players {
     this.scores = scores;
   }
 
+  serialize(): DatabaseSchema['room']['players'] {
+    return {
+      scores: Object.fromEntries(
+        [...this.scores].map(([session, score]) => [session.id, score])
+      ),
+    };
+  }
+
   static deserialize(
     data: DatabaseSchema['room']['players'],
     sessions: Map<string, Session>

@@ -1,9 +1,12 @@
+import { db } from 'Database';
 import { DatabaseSchema } from 'DatabaseSchema';
 import { getPseudoUniqueId } from 'getPseudoUniqueId';
 import { Players } from 'Players';
 import { Session } from 'Session';
 import { RoomOptions } from 'shared/types/RoomOptions';
 import { Table } from 'Table';
+
+const roomCollection = db.collection('room');
 
 export class Room {
   readonly id: string;
@@ -25,7 +28,7 @@ export class Room {
     table: Table;
   });
   constructor({
-    id = getPseudoUniqueId(),
+    id,
     options,
     players = new Players(),
     table = new Table(),
@@ -35,10 +38,27 @@ export class Room {
     players?: Players;
     table?: Table;
   }) {
-    this.id = id;
+    this.id = id ?? getPseudoUniqueId();
     this.options = options;
     this.players = players;
     this.table = table;
+
+    if (!id) {
+      this.insert;
+    }
+  }
+
+  private async insert() {
+    (await roomCollection).insertOne(this.serialize());
+  }
+
+  serialize(): DatabaseSchema['room'] {
+    return {
+      id: this.id,
+      options: this.options,
+      players: this.players.serialize(),
+      table: this.table.serialize(),
+    };
   }
 
   static deserialize(

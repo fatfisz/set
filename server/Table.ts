@@ -34,6 +34,14 @@ export class Table {
     }
   }
 
+  serialize(): DatabaseSchema['room']['table'] {
+    return {
+      cards: this.cards,
+      nextCardIndex: this.nextCardIndex,
+      tableCards: this.tableCards,
+    };
+  }
+
   static deserialize(data: DatabaseSchema['room']['table']): Table {
     return new Table();
   }
