@@ -40,6 +40,7 @@
     "unique-names-generator": "^4.2.0"
   },
   "scripts": {
+    "db": "mongo -u set-game-user -p set-game-password --authenticationDatabase set-game set-game",
     "dev:client": "next",
     "dev:server": "nodemon",
     "dev": "concurrently -k -n client,server -c green,blue \"yarn dev:client\" \"yarn dev:server\"",
