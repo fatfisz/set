@@ -16,7 +16,11 @@ class Database {
       auth: credentials,
       useUnifiedTopology: true,
     });
-    return client.db(dbName);
+    const db = client.db(dbName);
+    console.group('Database stats');
+    console.log(await db.stats());
+    console.groupEnd();
+    return db;
   }
 
   async collection<CollectionName extends keyof DatabaseSchema>(
