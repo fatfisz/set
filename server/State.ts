@@ -61,12 +61,12 @@ export class State {
   private setUpEvents(session: Session) {
     const { socket } = session;
 
+    this.emitLobbyStateChanged();
+
     socket?.on('set name', (name) => {
       session.setName(name);
       this.emitRoomStateChanged(session, true);
     });
-
-    this.emitLobbyStateChanged();
 
     socket?.on('join room', (roomId) => {
       const room = this.rooms.get(roomId);
@@ -88,6 +88,8 @@ export class State {
       this.emitLobbyStateChanged();
       session.log(`Left (${this.getActiveUserCount()} total)`);
     });
+
+    socket?.emit('server ready');
   }
 
   private emitLobbyStateChanged() {

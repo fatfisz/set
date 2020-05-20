@@ -59,11 +59,17 @@ export function useSocketListener<
 
 export function useSocketEmitter<
   EventName extends keyof ReceivedEvents<ServerEvents>
->(socket: ClientSocket<ServerEvents> | undefined, name: EventName) {
+>(
+  socket: ClientSocket<ServerEvents> | undefined,
+  ready: boolean,
+  name: EventName
+) {
   return useCallback(
     (...args: ReceivedEvents<ServerEvents>[EventName]) => {
-      socket?.emit(name, ...args);
+      if (ready) {
+        socket?.emit(name, ...args);
+      }
     },
-    [socket]
+    [ready, socket]
   );
 }

@@ -7,6 +7,7 @@ export interface ServerEvents {
   emitted: {
     'lobby state changed': [LobbyState];
     'room state changed': [RoomState];
+    'server ready': [];
     'session estabilished': [SessionState];
   };
   received: {

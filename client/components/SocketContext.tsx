@@ -42,6 +42,7 @@ const initialSession = {
 export function SocketProvider({ children }: { children: ReactNode }) {
   const socket = useSocket();
   const [session, setSession] = useState(initialSession);
+  const [ready, setReady] = useState(false);
   const [lobbyState, setLobbyState] = useState<LobbyState | undefined>();
   const [roomState, setRoomState] = useState<RoomState | undefined>();
 
@@ -50,22 +51,21 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     setSession(session);
     socket?.emit('confirm session', session.id);
   });
-
   useSocketListener(socket, 'lobby state changed', setLobbyState);
-
   useSocketListener(socket, 'room state changed', setRoomState);
+  useSocketListener(socket, 'server ready', () => setReady(true));
 
   const value: ContextType<typeof SocketContext> = {
     currentSessionId: session.id,
     name: session.name,
     lobbyState,
     roomState,
-    addNextCard: useSocketEmitter(socket, 'add next card'),
-    createRoom: useSocketEmitter(socket, 'create room'),
-    joinRoom: useSocketEmitter(socket, 'join room'),
-    leaveRoom: useSocketEmitter(socket, 'leave room'),
-    selectSet: useSocketEmitter(socket, 'select set'),
-    setName: useSocketEmitter(socket, 'set name'),
+    addNextCard: useSocketEmitter(socket, ready, 'add next card'),
+    createRoom: useSocketEmitter(socket, ready, 'create room'),
+    joinRoom: useSocketEmitter(socket, ready, 'join room'),
+    leaveRoom: useSocketEmitter(socket, ready, 'leave room'),
+    selectSet: useSocketEmitter(socket, ready, 'select set'),
+    setName: useSocketEmitter(socket, ready, 'set name'),
   };
 
   return (

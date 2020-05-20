@@ -36,6 +36,7 @@ export const validators: Record<
       ),
     })
   ),
+  'server ready': getValidator(),
   'session estabilished': getValidator(
     object({
       id: string(),
