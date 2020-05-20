@@ -80,7 +80,7 @@ export class Room {
   }
 
   forEachParticipant(callback: (participantSession: Session) => void) {
-    this.players.forEach(callback);
+    this.players.forEachActivePlayer(callback);
   }
 
   trySelectSet(session: Session, cards: number[]) {
@@ -104,10 +104,10 @@ export class Room {
       return;
     }
 
-    if (this.players.has(session)) {
+    if (this.players.hasAnActivePlayer(session)) {
       this.nextCardRequests.add(session);
 
-      if (this.nextCardRequests.size === this.players.getCount()) {
+      if (this.nextCardRequests.size === this.players.getActivePlayerCount()) {
         this.table.tryAddNextCard();
       }
     }

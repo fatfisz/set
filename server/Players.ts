@@ -3,8 +3,8 @@ import { Session } from 'Session';
 import { getOrThrow } from 'shared/getOrThrow';
 
 export class Players {
+  private activeSessions = new Set<Session>();
   private scores: Map<Session, number>;
-  private sessions = new Set<Session>();
 
   constructor();
   constructor(initialData: { scores: Map<Session, number> });
@@ -27,11 +27,11 @@ export class Players {
   }
 
   getScores() {
-    return [...this.sessions]
-      .map((session) => ({
+    return [...this.scores]
+      .map(([session, score]) => ({
         sessionId: session.id,
         name: session.name,
-        score: this.scores.get(session) as number,
+        score,
       }))
       .sort(
         (playerA, playerB) =>
@@ -40,32 +40,33 @@ export class Players {
       );
   }
 
-  has(session: Session) {
-    return this.sessions.has(session);
+  hasAnActivePlayer(session: Session) {
+    return this.activeSessions.has(session);
   }
 
-  getCount() {
-    return this.sessions.size;
+  getActivePlayerCount() {
+    return this.activeSessions.size;
   }
 
   add(session: Session) {
-    if (!this.has(session)) {
-      this.sessions.add(session);
+    if (!this.activeSessions.has(session)) {
+      this.activeSessions.add(session);
+    }
+    if (!this.scores.has(session)) {
       this.scores.set(session, 0);
     }
   }
 
   delete(session: Session) {
-    this.sessions.delete(session);
-    this.scores.delete(session);
+    this.activeSessions.delete(session);
   }
 
-  forEach(callback: (session: Session) => void) {
-    this.sessions.forEach(callback);
+  forEachActivePlayer(callback: (session: Session) => void) {
+    this.activeSessions.forEach(callback);
   }
 
   increaseScore(session: Session) {
-    if (!this.has(session)) {
+    if (!this.scores.has(session)) {
       return;
     }
     this.scores.set(session, (this.scores.get(session) as number) + 1);
