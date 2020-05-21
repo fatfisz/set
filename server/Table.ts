@@ -42,8 +42,12 @@ export class Table {
     };
   }
 
-  static deserialize(data: DatabaseSchema['room']['table']): Table {
-    return new Table();
+  static deserialize({
+    cards,
+    nextCardIndex,
+    tableCards,
+  }: DatabaseSchema['room']['table']): Table {
+    return new Table({ cards, nextCardIndex, tableCards });
   }
 
   private fill() {
