@@ -29,7 +29,7 @@ export interface ServerSocket<Events extends ServerEvents> {
   emit<EventName extends keyof EmittedEvents<Events>>(
     name: EventName,
     ...args: EmittedEvents<Events>[EventName][0]
-  ): Awaitable<EmittedEvents<Events>[EventName][1]>;
+  ): Promise<EmittedEvents<Events>[EventName][1]>;
 
   on<EventName extends keyof ReceivedEvents<Events>>(
     name: EventName,
@@ -42,7 +42,7 @@ export interface ClientSocket<Events extends ServerEvents> {
   emit<EventName extends keyof ReceivedEvents<Events>>(
     name: EventName,
     ...args: ReceivedEvents<Events>[EventName][0]
-  ): Awaitable<ReceivedEvents<Events>[EventName][1]>;
+  ): Promise<ReceivedEvents<Events>[EventName][1]>;
 
   on<EventName extends keyof EmittedEvents<Events>>(
     name: EventName,
