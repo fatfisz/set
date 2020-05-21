@@ -1,4 +1,5 @@
-import { db } from 'Database';
+import * as roomCollection from 'collections/roomCollection';
+import * as sessionCollection from 'collections/sessionCollection';
 import { Room } from 'Room';
 import { Session } from 'Session';
 import { RoomOptions } from 'shared/types/RoomOptions';
@@ -9,19 +10,13 @@ export class State {
   private rooms = new Map<string, Room>();
   private sessions = new Map<string, Session>();
 
-  constructor() {
-    this.createRoom({ autoAddCard: true, name: 'Test room' });
-  }
-
   async initFromDb() {
-    const rooms = await db.collection('room');
-    rooms.find().forEach((room) => {
-      this.rooms.set(room.id, Room.deserialize(room, this.sessions));
+    await sessionCollection.forEach((session) => {
+      this.sessions.set(session.id, Session.deserialize(session));
     });
 
-    const sessions = await db.collection('session');
-    sessions.find().forEach((session) => {
-      this.sessions.set(session.id, Session.deserialize(session));
+    await roomCollection.forEach((room) => {
+      this.rooms.set(room.id, Room.deserialize(room, this.sessions));
     });
   }
 

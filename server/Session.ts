@@ -1,12 +1,10 @@
-import { db } from 'Database';
+import * as sessionCollection from 'collections/sessionCollection';
 import { DatabaseSchema } from 'DatabaseSchema';
 import { getPseudoUniqueId } from 'getPseudoUniqueId';
 import { getRandomName } from 'getRandomName';
 import { Room } from 'Room';
 import { ServerEvents } from 'shared/types/ServerEvents';
 import { ServerSocket } from 'shared/types/Socket';
-
-const sessionCollection = db.collection('session');
 
 export class Session {
   readonly id: string;
@@ -36,12 +34,8 @@ export class Session {
     }
 
     if (!id) {
-      this.insert();
+      sessionCollection.insertOne(this.serialize());
     }
-  }
-
-  private async insert() {
-    (await sessionCollection).insertOne(this.serialize());
   }
 
   serialize(): DatabaseSchema['session'] {
@@ -77,6 +71,7 @@ export class Session {
 
   setName(name: string) {
     this.name = name;
+    sessionCollection.updateOne(this.id, { $set: { name } });
   }
 
   leaveRoom() {

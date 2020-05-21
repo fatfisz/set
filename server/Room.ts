@@ -1,12 +1,10 @@
-import { db } from 'Database';
+import * as roomCollection from 'collections/roomCollection';
 import { DatabaseSchema } from 'DatabaseSchema';
 import { getPseudoUniqueId } from 'getPseudoUniqueId';
 import { Players } from 'Players';
 import { Session } from 'Session';
 import { RoomOptions } from 'shared/types/RoomOptions';
 import { Table } from 'Table';
-
-const roomCollection = db.collection('room');
 
 export class Room {
   readonly id: string;
@@ -44,12 +42,8 @@ export class Room {
     this.table = table;
 
     if (!id) {
-      this.insert;
+      roomCollection.insertOne(this.serialize());
     }
-  }
-
-  private async insert() {
-    (await roomCollection).insertOne(this.serialize());
   }
 
   serialize(): DatabaseSchema['room'] {
@@ -92,11 +86,17 @@ export class Room {
   addPlayer(session: Session) {
     this.players.add(session);
     session.log('Joined the room');
+    roomCollection.updateOne(this.id, {
+      $set: { players: this.players.serialize() },
+    });
   }
 
   removePlayer(session: Session) {
     session.log('Left the room');
     this.players.delete(session);
+    roomCollection.updateOne(this.id, {
+      $set: { players: this.players.serialize() },
+    });
   }
 
   forEachParticipant(callback: (participantSession: Session) => void) {
@@ -116,6 +116,13 @@ export class Room {
       this.clearNextCardRequests();
     }
 
+    roomCollection.updateOne(this.id, {
+      $set: {
+        players: this.players.serialize(),
+        table: this.table.serialize(),
+      },
+    });
+
     return true;
   }
 
@@ -129,6 +136,9 @@ export class Room {
 
       if (this.nextCardRequests.size === this.players.getActivePlayerCount()) {
         this.table.tryAddNextCard();
+        roomCollection.updateOne(this.id, {
+          $set: { table: this.table.serialize() },
+        });
       }
     }
   }
