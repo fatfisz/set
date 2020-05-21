@@ -2,18 +2,35 @@ import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 
 import { Drawer } from 'components/Drawer';
+import { FloatingContent } from 'components/FloatingContent';
 import { SelectedCardsProvider } from 'components/SelectedCardsContext';
 import { SocketContext } from 'components/SocketContext';
 import { Table } from 'components/Table';
+import { pageRedirectionTimeout } from 'config/pageRedirectionTimeout';
 
 export default function Room() {
   const { id } = useRouter().query;
+  const [notFound, setNotFound] = useState(false);
   const { joinRoom, leaveRoom, roomState } = useContext(SocketContext);
 
   useEffect(() => {
-    joinRoom(typeof id === 'string' ? id : '');
-    return leaveRoom;
+    let didCancel = false;
+    async function run() {
+      const success = await joinRoom(typeof id === 'string' ? id : '');
+      if (!didCancel && !success) {
+        setNotFound(true);
+      }
+    }
+    run();
+    return () => {
+      didCancel = true;
+      leaveRoom;
+    };
   }, [id, joinRoom, leaveRoom]);
+
+  if (notFound) {
+    return <NotFound />;
+  }
 
   if (!roomState) {
     return null;
@@ -44,5 +61,29 @@ export default function Room() {
         }
       `}</style>
     </>
+  );
+}
+
+function NotFound() {
+  const router = useRouter();
+
+  useEffect(() => {
+    let didCancel = false;
+    const timeoutHandle = setTimeout(() => {
+      if (!didCancel) {
+        router.push('/');
+      }
+    }, pageRedirectionTimeout);
+    return () => {
+      didCancel = true;
+      clearTimeout(timeoutHandle);
+    };
+  }, []);
+
+  return (
+    <FloatingContent>
+      <h1>The room does not exist</h1>
+      <p>You will be redirected to the lobby in a few seconds.</p>
+    </FloatingContent>
   );
 }

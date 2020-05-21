@@ -65,9 +65,10 @@ export class State {
 
     socket?.on('join room', (roomId) => {
       const room = this.rooms.get(roomId);
-      if (room) {
-        this.joinRoom(session, room);
+      if (!room) {
+        return false;
       }
+      return this.joinRoom(session, room);
     });
 
     socket?.on('create room', (options) => {
@@ -94,9 +95,9 @@ export class State {
     });
   }
 
-  private joinRoom(session: Session, room: Room) {
+  private joinRoom(session: Session, room: Room): boolean {
     if (session.room) {
-      return;
+      return false;
     }
 
     const removeListeners = withSocketListenerRemoval(session, (socket) => {
@@ -131,6 +132,8 @@ export class State {
 
       socket.on('disconnect', leaveRoom);
     });
+
+    return true;
   }
 
   private emitRoomStateChanged(

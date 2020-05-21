@@ -14,7 +14,7 @@ export interface ServerEvents {
     'add next card': [[], void];
     'create room': [[RoomOptions], void];
     'confirm session': [[string], void];
-    'join room': [[string], void];
+    'join room': [[string], boolean];
     'leave room': [[], void];
     'select set': [[number[]], void];
     'set name': [[string], void];

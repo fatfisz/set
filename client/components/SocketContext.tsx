@@ -17,7 +17,7 @@ export const SocketContext = createContext<{
   roomState: RoomState | undefined;
   addNextCard(): void;
   createRoom(options: RoomOptions): void;
-  joinRoom(roomId: string): void;
+  joinRoom(roomId: string): Promise<boolean>;
   leaveRoom(): void;
   selectSet(cards: Readonly<number[]>): void;
   setName(name: string): void;
@@ -28,7 +28,9 @@ export const SocketContext = createContext<{
   roomState: undefined,
   addNextCard() {},
   createRoom() {},
-  joinRoom() {},
+  joinRoom() {
+    return Promise.resolve(false);
+  },
   leaveRoom() {},
   selectSet() {},
   setName() {},
