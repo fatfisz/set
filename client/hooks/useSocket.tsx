@@ -2,11 +2,13 @@ import { DependencyList, useCallback, useEffect, useState } from 'react';
 import io from 'socket.io-client';
 
 import { storageIdKey } from 'config/storage';
+import { patchSocket } from 'shared/patchSocket';
 import { serverPort } from 'shared/serverPort';
 import { ServerEvents } from 'shared/types/ServerEvents';
 import {
   ClientSocket,
   EmittedEvents,
+  Listener,
   ReceivedEvents,
 } from 'shared/types/Socket';
 import { validators } from 'validators';
@@ -21,7 +23,7 @@ export function useSocket() {
       query: { sessionId },
     });
 
-    setSocket(socket);
+    setSocket(patchSocket(socket));
 
     return () => {
       socket.close();
@@ -36,24 +38,21 @@ export function useSocketListener<
 >(
   socket: ClientSocket<ServerEvents> | undefined,
   name: EventName,
-  listener: (...args: EmittedEvents<ServerEvents>[EventName]) => void,
+  listener: Listener<EmittedEvents<ServerEvents>[EventName]>,
   deps: DependencyList = []
 ) {
   useEffect(() => {
     function listenerWithValidator(
-      ...args: EmittedEvents<ServerEvents>[EventName]
+      ...args: EmittedEvents<ServerEvents>[EventName][0]
     ) {
       if (process.env.NODE_ENV !== 'production') {
         console.log(`[${name}]`, ...args);
       }
       validators[name](...args);
-      listener(...args);
+      return listener(...args);
     }
 
-    socket?.on(name, listenerWithValidator);
-    return () => {
-      socket?.off(name, listenerWithValidator);
-    };
+    return socket?.on(name, listenerWithValidator);
   }, [socket, ...deps]);
 }
 
@@ -65,9 +64,9 @@ export function useSocketEmitter<
   name: EventName
 ) {
   return useCallback(
-    (...args: ReceivedEvents<ServerEvents>[EventName]) => {
+    async (...args: ReceivedEvents<ServerEvents>[EventName][0]) => {
       if (ready) {
-        socket?.emit(name, ...args);
+        return socket?.emit(name, ...args);
       }
     },
     [ready, socket]

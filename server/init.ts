@@ -1,8 +1,7 @@
 import SocketIO from 'socket.io';
 
 import { getServer } from 'server';
-import { ServerEvents } from 'shared/types/ServerEvents';
-import { ServerSocket } from 'shared/types/Socket';
+import { patchSocket } from 'shared/patchSocket';
 import { State } from 'State';
 
 main();
@@ -12,7 +11,7 @@ async function main() {
   await state.initFromDb();
   const server = getServer();
   const io = SocketIO(server);
-  io.on('connect', (socket: ServerSocket<ServerEvents>) => {
-    state.addSocket(socket);
+  io.on('connect', (socket) => {
+    state.addSocket(patchSocket(socket));
   });
 }

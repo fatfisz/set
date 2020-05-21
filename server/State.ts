@@ -207,11 +207,12 @@ function withSocketListenerRemoval(
   }
 
   const originalOn = socket.on;
-  const registeredListeners: [any, (...args: any[]) => void][] = [];
+  const cleanupFunctions: ((...args: any[]) => void)[] = [];
   try {
     socket.on = (name: any, listener: (...args: any[]) => void) => {
-      registeredListeners.push([name, listener]);
-      originalOn.call(socket, name, listener);
+      const cleanup = originalOn.call(socket, name, listener);
+      cleanupFunctions.push(cleanup);
+      return cleanup;
     };
     callback(socket);
   } finally {
@@ -219,8 +220,8 @@ function withSocketListenerRemoval(
   }
 
   return () => {
-    registeredListeners.forEach(([name, listener]) => {
-      socket.off(name, listener);
+    cleanupFunctions.forEach((cleanup) => {
+      cleanup();
     });
   };
 }
