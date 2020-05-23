@@ -51,7 +51,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   useSocketListener(socket, 'session estabilished', (session) => {
     localStorage.setItem(storageIdKey, session.id);
     setSession(session);
-    socket?.emit('confirm session', session.id);
+    return session.id;
   });
   useSocketListener(socket, 'lobby state changed', setLobbyState);
   useSocketListener(socket, 'room state changed', setRoomState);

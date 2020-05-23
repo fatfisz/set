@@ -37,20 +37,19 @@ export class State {
     this.setUpEvents(session);
   }
 
-  private confirmSession(session: Session): Promise<boolean> {
-    return new Promise((resolve) => {
-      const { socket } = session;
-      socket?.emit('session estabilished', session.getState());
-      socket?.on('confirm session', async (clientSessionId) => {
-        if (clientSessionId === session.id) {
-          resolve(true);
-        } else {
-          session.log(`Confirmation failure: received ${clientSessionId}`);
-          socket?.disconnect();
-          resolve(false);
-        }
-      });
-    });
+  private async confirmSession(session: Session): Promise<boolean> {
+    const { socket } = session;
+    const clientSessionId = await socket?.emit(
+      'session estabilished',
+      session.getState()
+    );
+    if (clientSessionId === session.id) {
+      return true;
+    } else {
+      session.log(`Confirmation failure: received ${clientSessionId}`);
+      socket?.disconnect();
+      return false;
+    }
   }
 
   private setUpEvents(session: Session) {
@@ -212,7 +211,7 @@ function withSocketListenerRemoval(
   const originalOn = socket.on;
   const cleanupFunctions: ((...args: any[]) => void)[] = [];
   try {
-    socket.on = (name: any, listener: (...args: any[]) => void) => {
+    socket.on = (name: any, listener: (...args: any) => void) => {
       const cleanup = originalOn.call(socket, name, listener);
       cleanupFunctions.push(cleanup);
       return cleanup;

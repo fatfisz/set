@@ -8,12 +8,11 @@ export interface ServerEvents {
     'lobby state changed': [[LobbyState], void];
     'room state changed': [[RoomState], void];
     'server ready': [[], void];
-    'session estabilished': [[SessionState], void];
+    'session estabilished': [[SessionState], string];
   };
   received: {
     'add next card': [[], void];
     'create room': [[RoomOptions], void];
-    'confirm session': [[string], void];
     'join room': [[string], boolean];
     'leave room': [[], void];
     'select set': [[number[]], void];
