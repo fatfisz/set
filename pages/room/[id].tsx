@@ -17,14 +17,14 @@ export default function Room() {
     let didCancel = false;
     async function run() {
       const success = await joinRoom(typeof id === 'string' ? id : '');
-      if (!didCancel && !success) {
+      if (!didCancel && success === false) {
         setNotFound(true);
       }
     }
     run();
     return () => {
       didCancel = true;
-      leaveRoom;
+      leaveRoom();
     };
   }, [id, joinRoom, leaveRoom]);
 
