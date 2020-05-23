@@ -54,6 +54,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   useSocketListener(socket, 'lobby state changed', setLobbyState);
   useSocketListener(socket, 'room state changed', setRoomState);
   useSocketListener(socket, 'server ready', () => setReady(true));
+  useSocketListener(socket, 'disconnect', () => setReady(false));
 
   const value: ContextType<typeof SocketContext> = {
     currentSessionId: session.id,

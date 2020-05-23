@@ -43,6 +43,7 @@ export const validators: Record<
       name: string(),
     })
   ),
+  disconnect: getValidator(string()),
 };
 
 function getValidator(...schemas: any[]) {

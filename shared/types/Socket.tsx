@@ -35,7 +35,6 @@ export interface ServerSocket<Events extends ServerEvents> {
     name: EventName,
     listener: Listener<ReceivedEvents<Events>[EventName]>
   ): RemoveListener;
-  on(name: 'disconnect', listener: () => void): RemoveListener;
 }
 
 export interface ClientSocket<Events extends ServerEvents> {

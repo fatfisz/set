@@ -9,6 +9,7 @@ export interface ServerEvents {
     'room state changed': [[RoomState], void];
     'server ready': [[], void];
     'session estabilished': [[SessionState], string];
+    disconnect: [[string], void];
   };
   received: {
     'add next card': [[], void];
@@ -17,5 +18,6 @@ export interface ServerEvents {
     'leave room': [[], void];
     'select set': [[number[]], void];
     'set name': [[string], void];
+    disconnect: [[string], void];
   };
 }
