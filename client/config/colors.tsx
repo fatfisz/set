@@ -12,4 +12,4 @@ export const lightGrey = '#ccc';
 
 export const darkGrey = '#444';
 
-export const translucentBlack = '#000000a0';
+export const translucentBlack = '#000000c0';

@@ -14,6 +14,7 @@ export const SocketContext = createContext<{
   name: string;
   currentSessionId: string;
   lobbyState: LobbyState | undefined;
+  ready: boolean;
   roomState: RoomState | undefined;
   addNextCard(): void;
   createRoom(options: RoomOptions): void;
@@ -25,6 +26,7 @@ export const SocketContext = createContext<{
   name: '',
   currentSessionId: '',
   lobbyState: undefined,
+  ready: false,
   roomState: undefined,
   addNextCard() {},
   createRoom() {},
@@ -60,6 +62,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     currentSessionId: session.id,
     name: session.name,
     lobbyState,
+    ready,
     roomState,
     addNextCard: useSocketEmitter(socket, ready, 'add next card'),
     createRoom: useSocketEmitter(socket, ready, 'create room'),
