@@ -78,8 +78,4 @@ export class Session {
     this.room?.removePlayer(this);
     this.room = undefined;
   }
-
-  log(...args: any[]) {
-    console.log(`[${this.id}]`, ...args);
-  }
 }

@@ -85,14 +85,14 @@ export class Room {
 
   addPlayer(session: Session) {
     this.players.add(session);
-    session.log('Joined the room');
+    session.socket?.log('Joined the room');
     roomCollection.updateOne(this.id, {
       $set: { players: this.players.serialize() },
     });
   }
 
   removePlayer(session: Session) {
-    session.log('Left the room');
+    session.socket?.log('Left the room');
     this.players.delete(session);
     roomCollection.updateOne(this.id, {
       $set: { players: this.players.serialize() },

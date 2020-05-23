@@ -1,5 +1,3 @@
-import { Socket } from 'socket.io';
-
 type Awaitable<Value> = Value | Promise<Value>;
 
 type AnyEventPair = [any[], any];
@@ -13,17 +11,15 @@ export type EmittedEvents<Events extends ServerEvents> = Events['emitted'];
 
 export type ReceivedEvents<Events extends ServerEvents> = Events['received'];
 
-export type Listener<EventPair extends [any[], any]> = (
+export type Listener<EventPair extends AnyEventPair> = (
   ...args: EventPair[0]
 ) => Awaitable<EventPair[1]>;
 
 type RemoveListener = () => void;
 
 export interface ServerSocket<Events extends ServerEvents> {
-  handshake: Socket['handshake'];
-
-  disconnect: Socket['disconnect'];
-
+  handshake: SocketIO.Socket['handshake'];
+  disconnect: SocketIO.Socket['disconnect'];
   broadcast: ServerSocket<Events>;
 
   emit<EventName extends keyof EmittedEvents<Events>>(
@@ -35,6 +31,8 @@ export interface ServerSocket<Events extends ServerEvents> {
     name: EventName,
     listener: Listener<ReceivedEvents<Events>[EventName]>
   ): RemoveListener;
+
+  log(...args: any[]): void;
 }
 
 export interface ClientSocket<Events extends ServerEvents> {
@@ -47,4 +45,6 @@ export interface ClientSocket<Events extends ServerEvents> {
     name: EventName,
     listener: Listener<EmittedEvents<Events>[EventName]>
   ): RemoveListener;
+
+  log(...args: any[]): void;
 }

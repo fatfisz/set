@@ -45,9 +45,6 @@ export function useSocketListener<
     function listenerWithValidator(
       ...args: EmittedEvents<ServerEvents>[EventName][0]
     ) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`[${name}]`, ...args);
-      }
       validators[name](...args);
       return listener(...args);
     }

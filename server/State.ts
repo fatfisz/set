@@ -26,14 +26,14 @@ export class State {
       return;
     }
 
-    session.log(`Joined (${this.getActiveUserCount()} total)`);
+    session.socket?.log(`Joined (${this.getActiveUserCount()} total)`);
 
     const confirmed = await this.confirmSession(session);
     if (!confirmed) {
       return;
     }
 
-    session.log('Confirmed');
+    session.socket?.log('Confirmed');
     this.setUpEvents(session);
   }
 
@@ -46,7 +46,7 @@ export class State {
     if (clientSessionId === session.id) {
       return true;
     } else {
-      session.log(`Confirmation failure: received ${clientSessionId}`);
+      session.socket?.log(`Confirmation failure: received ${clientSessionId}`);
       socket?.disconnect();
       return false;
     }
@@ -81,7 +81,7 @@ export class State {
     socket?.on('disconnect', () => {
       session.disconnectSocket();
       this.emitLobbyStateChanged();
-      session.log(`Left (${this.getActiveUserCount()} total)`);
+      session.socket?.log(`Left (${this.getActiveUserCount()} total)`);
     });
 
     socket?.emit('server ready');
@@ -164,7 +164,7 @@ export class State {
 
     if (session) {
       if (session.socket) {
-        session.log('Tried to open another window');
+        session.socket?.log('Tried to open another window');
         return;
       }
       session.setSocket(socket);
