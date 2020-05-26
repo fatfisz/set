@@ -189,7 +189,10 @@ export class State {
   }
 
   private getActiveUserCount() {
-    return this.sessions.size;
+    return [...this.sessions.values()].reduce(
+      (activeUserCount, session) => activeUserCount + (session.socket ? 1 : 0),
+      0
+    );
   }
 }
 
