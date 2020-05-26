@@ -4,6 +4,7 @@ import { getPseudoUniqueId } from 'getPseudoUniqueId';
 import { getRandomName } from 'getRandomName';
 import { Room } from 'Room';
 import { ServerEvents } from 'shared/types/ServerEvents';
+import { SessionState } from 'shared/types/SessionState';
 import { ServerSocket } from 'shared/types/Socket';
 
 export class Session {
@@ -49,7 +50,7 @@ export class Session {
     return new Session(data);
   }
 
-  getState() {
+  getState(): SessionState {
     return {
       id: this.id,
       name: this.name,

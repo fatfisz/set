@@ -6,6 +6,7 @@ type SessionId = ServerSession['id'];
 export interface DatabaseSchema {
   room: {
     id: string;
+    manuallyFinished: boolean;
     options: RoomOptions;
     players: {
       scores: Record<SessionId, number>;

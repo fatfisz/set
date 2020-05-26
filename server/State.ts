@@ -110,6 +110,13 @@ export class State {
         });
       });
 
+      socket.on('finish game', () => {
+        withRoom(session, (room) => {
+          room.requestFinishGame(session);
+          this.emitRoomStateChanged(session, true);
+        });
+      });
+
       socket.on('select set', (cards) => {
         withRoom(session, (room) => {
           if (room.trySelectSet(session, cards)) {

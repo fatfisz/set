@@ -1,5 +1,6 @@
 export interface RoomState {
   cards: number[];
+  isFinished: boolean;
   options: {
     autoAddCard: boolean;
   };

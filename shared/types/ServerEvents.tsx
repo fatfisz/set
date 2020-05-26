@@ -14,6 +14,7 @@ export interface ServerEvents {
   received: {
     'add next card': [[], void];
     'create room': [[RoomOptions], void];
+    'finish game': [[], void];
     'join room': [[string], boolean];
     'leave room': [[], void];
     'select set': [[number[]], void];

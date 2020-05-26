@@ -18,6 +18,7 @@ export const SocketContext = createContext<{
   roomState: RoomState | undefined;
   addNextCard(): void;
   createRoom(options: RoomOptions): void;
+  finishGame(): void;
   joinRoom(roomId: string): Promise<boolean> | void;
   leaveRoom(): void;
   selectSet(cards: Readonly<number[]>): void;
@@ -30,6 +31,7 @@ export const SocketContext = createContext<{
   roomState: undefined,
   addNextCard() {},
   createRoom() {},
+  finishGame() {},
   joinRoom() {},
   leaveRoom() {},
   selectSet() {},
@@ -66,6 +68,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     roomState,
     addNextCard: useSocketEmitter(socket, ready, 'add next card'),
     createRoom: useSocketEmitter(socket, ready, 'create room'),
+    finishGame: useSocketEmitter(socket, ready, 'finish game'),
     joinRoom: useSocketEmitter(socket, ready, 'join room'),
     leaveRoom: useSocketEmitter(socket, ready, 'leave room'),
     selectSet: useSocketEmitter(socket, ready, 'select set'),

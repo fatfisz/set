@@ -19,19 +19,19 @@ export function Drawer({
     score: number;
   }[];
 }) {
-  const { currentSessionId, addNextCard } = useContext(SocketContext);
+  const { currentSessionId, addNextCard, finishGame } = useContext(
+    SocketContext
+  );
   return (
     <>
       <div className="drawer">
         <Nick />
-        {!options.autoAddCard && (
-          <button
-            disabled={remainingCardCount === 0}
-            onClick={() => addNextCard()}
-          >
-            Add one more card
-          </button>
-        )}
+        {!options.autoAddCard &&
+          (remainingCardCount === 0 ? (
+            <button onClick={() => finishGame()}>Finish the game</button>
+          ) : (
+            <button onClick={() => addNextCard()}>Add one more card</button>
+          ))}
         <Info label="Remaining cards" value={remainingCardCount} />
         <Info
           label="Your score"

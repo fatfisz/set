@@ -139,6 +139,10 @@ export class Table {
     }
     return false;
   }
+
+  isFinished() {
+    return this.getRemainingCardCount() === 0 && !this.hasSet();
+  }
 }
 
 function getShuffledCards() {

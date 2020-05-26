@@ -4,39 +4,47 @@ import { getPseudoUniqueId } from 'getPseudoUniqueId';
 import { Players } from 'Players';
 import { Session } from 'Session';
 import { RoomOptions } from 'shared/types/RoomOptions';
+import { RoomState } from 'shared/types/RoomState';
 import { Table } from 'Table';
 
 export class Room {
   readonly id: string;
   readonly options: RoomOptions;
+  private manuallyFinished: boolean;
+  private finishGameRequests = new Set<Session>();
   private nextCardRequests = new Set<Session>();
   private players: Players;
   private table: Table;
 
   constructor(initialData: {
     id?: never;
+    manuallyFinished?: never;
     options: RoomOptions;
     players?: never;
     table?: never;
   });
   constructor(initialData: {
     id: string;
+    manuallyFinished: boolean;
     options: RoomOptions;
     players: Players;
     table: Table;
   });
   constructor({
     id,
+    manuallyFinished = false,
     options,
     players = new Players(),
     table = new Table(),
   }: {
     id?: string;
+    manuallyFinished?: boolean;
     options: RoomOptions;
     players?: Players;
     table?: Table;
   }) {
     this.id = id ?? getPseudoUniqueId();
+    this.manuallyFinished = manuallyFinished;
     this.options = options;
     this.players = players;
     this.table = table;
@@ -49,6 +57,7 @@ export class Room {
   serialize(): DatabaseSchema['room'] {
     return {
       id: this.id,
+      manuallyFinished: this.manuallyFinished,
       options: this.options,
       players: this.players.serialize(),
       table: this.table.serialize(),
@@ -56,11 +65,12 @@ export class Room {
   }
 
   static deserialize(
-    { id, options, players, table }: DatabaseSchema['room'],
+    { id, manuallyFinished, options, players, table }: DatabaseSchema['room'],
     sessions: Map<string, Session>
   ): Room {
     return new Room({
       id,
+      manuallyFinished,
       options,
       players: Players.deserialize(players, sessions),
       table: Table.deserialize(table),
@@ -74,9 +84,12 @@ export class Room {
     };
   }
 
-  getState() {
+  getState(): RoomState {
     return {
       cards: this.table.getCards(),
+      isFinished: this.options.autoAddCard
+        ? this.table.isFinished()
+        : this.manuallyFinished,
       options: this.options,
       remainingCardCount: this.table.getRemainingCardCount(),
       scores: this.players.getScores(),
@@ -134,7 +147,7 @@ export class Room {
     if (this.players.hasAnActivePlayer(session)) {
       this.nextCardRequests.add(session);
 
-      if (this.nextCardRequests.size === this.players.getActivePlayerCount()) {
+      if (this.hasAllActivePlayers(this.nextCardRequests)) {
         this.table.tryAddNextCard();
         roomCollection.updateOne(this.id, {
           $set: { table: this.table.serialize() },
@@ -143,7 +156,28 @@ export class Room {
     }
   }
 
+  requestFinishGame(session: Session) {
+    if (this.options.autoAddCard) {
+      return;
+    }
+
+    if (this.players.hasAnActivePlayer(session)) {
+      this.finishGameRequests.add(session);
+
+      if (this.hasAllActivePlayers(this.finishGameRequests)) {
+        this.manuallyFinished = true;
+        roomCollection.updateOne(this.id, {
+          $set: { manuallyFinished: true },
+        });
+      }
+    }
+  }
+
   private clearNextCardRequests() {
     this.nextCardRequests.clear();
+  }
+
+  private hasAllActivePlayers(players: Set<Session>) {
+    return this.players.everyActivePlayer((player) => players.has(player));
   }
 }

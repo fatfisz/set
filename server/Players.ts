@@ -73,6 +73,10 @@ export class Players {
     this.activeSessions.forEach(callback);
   }
 
+  everyActivePlayer(callback: (session: Session) => boolean) {
+    return [...this.activeSessions].every(callback);
+  }
+
   increaseScore(session: Session) {
     if (!this.scores.has(session)) {
       return;
