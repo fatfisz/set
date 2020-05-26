@@ -13,21 +13,30 @@ import {
 } from 'shared/types/Socket';
 import { validators } from 'validators';
 
+declare global {
+  interface Window {
+    globalSocket: ClientSocket<ServerEvents>;
+  }
+}
+
+if (
+  typeof window !== 'undefined' &&
+  typeof window.globalSocket === 'undefined'
+) {
+  const sessionId = localStorage.getItem(storageIdKey) ?? '';
+  const socket = io(`localhost:${serverPort}`, {
+    transports: ['websocket'],
+    query: { sessionId },
+  });
+  window.globalSocket = patchSocket(socket);
+}
+
 export function useSocket() {
   const [socket, setSocket] = useState<ClientSocket<ServerEvents>>();
 
   useEffect(() => {
-    const sessionId = localStorage.getItem(storageIdKey) ?? '';
-    const socket = io(`localhost:${serverPort}`, {
-      transports: ['websocket'],
-      query: { sessionId },
-    });
-
-    setSocket(patchSocket(socket));
-
-    return () => {
-      socket.close();
-    };
+    setSocket(window.globalSocket);
+    return () => setSocket(undefined);
   }, []);
 
   return socket;

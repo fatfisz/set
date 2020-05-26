@@ -46,7 +46,7 @@ export class State {
     if (clientSessionId === session.id) {
       return true;
     } else {
-      session.socket?.log(`Confirmation failure: received ${clientSessionId}`);
+      socket?.log(`Confirmation failure: received ${clientSessionId}`);
       socket?.disconnect();
       return false;
     }
@@ -81,7 +81,7 @@ export class State {
     socket?.on('disconnect', () => {
       session.disconnectSocket();
       this.emitLobbyStateChanged();
-      session.socket?.log(`Left (${this.getActiveUserCount()} total)`);
+      socket.log(`Left (${this.getActiveUserCount()} total)`);
     });
 
     socket?.emit('server ready');
@@ -164,7 +164,8 @@ export class State {
 
     if (session) {
       if (session.socket) {
-        session.socket?.log('Tried to open another window');
+        session.socket.log(`Tried to open another window (${socket.id})`);
+        session.socket.disconnect(true);
         return;
       }
       session.setSocket(socket);

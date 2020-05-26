@@ -18,9 +18,10 @@ export type Listener<EventPair extends AnyEventPair> = (
 type RemoveListener = () => void;
 
 export interface ServerSocket<Events extends ServerEvents> {
-  handshake: SocketIO.Socket['handshake'];
-  disconnect: SocketIO.Socket['disconnect'];
   broadcast: ServerSocket<Events>;
+  disconnect: SocketIO.Socket['disconnect'];
+  handshake: SocketIO.Socket['handshake'];
+  id: SocketIO.Socket['id'];
 
   emit<EventName extends keyof EmittedEvents<Events>>(
     name: EventName,
