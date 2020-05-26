@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 
 import { Drawer } from 'components/Drawer';
+import { GameFinished } from 'components/GameFinished';
 import { NotFound } from 'components/NotFound';
 import { SelectedCardsProvider } from 'components/SelectedCardsContext';
 import { SocketContext } from 'components/SocketContext';
@@ -46,6 +47,7 @@ export default function Room() {
           remainingCardCount={roomState.remainingCardCount}
           scores={roomState.scores}
         />
+        <GameFinished />
       </div>
 
       <style jsx>{`
