@@ -2,11 +2,10 @@ import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 
 import { Drawer } from 'components/Drawer';
-import { FloatingContent } from 'components/FloatingContent';
+import { NotFound } from 'components/NotFound';
 import { SelectedCardsProvider } from 'components/SelectedCardsContext';
 import { SocketContext } from 'components/SocketContext';
 import { Table } from 'components/Table';
-import { pageRedirectionTimeout } from 'config/pageRedirectionTimeout';
 
 export default function Room() {
   const { id } = useRouter().query;
@@ -61,29 +60,5 @@ export default function Room() {
         }
       `}</style>
     </>
-  );
-}
-
-function NotFound() {
-  const router = useRouter();
-
-  useEffect(() => {
-    let didCancel = false;
-    const timeoutHandle = setTimeout(() => {
-      if (!didCancel) {
-        router.push('/');
-      }
-    }, pageRedirectionTimeout);
-    return () => {
-      didCancel = true;
-      clearTimeout(timeoutHandle);
-    };
-  }, []);
-
-  return (
-    <FloatingContent>
-      <h1>The room does not exist</h1>
-      <p>You will be redirected to the lobby in a few seconds.</p>
-    </FloatingContent>
   );
 }
